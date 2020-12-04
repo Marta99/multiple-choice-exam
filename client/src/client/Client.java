@@ -26,13 +26,10 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
         String studentID = (args.length < 3) ? "78099079A" : args[2];
         try {
             Registry registry = LocateRegistry.getRegistry(host);
-            System.out.println("Created registry");
             MultipleChoiceClient client = new Client(studentID);
-            System.out.println("Created client");
             MultipleChoiceServer stub = (MultipleChoiceServer) registry.lookup(sessionID);
-            System.out.println("Created stub");
             stub.joinSession(client);
-            System.out.println("Client registered, waiting for notification");
+            System.out.println("You have joined the session, the exam is about to start.");
         } catch (Exception e) {
             e.printStackTrace();
         }

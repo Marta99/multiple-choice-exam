@@ -18,7 +18,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
 
     @Override
     public void joinSession(MultipleChoiceClient multipleChoiceClient) throws RemoteException {
-        System.out.println("Accepted server");
+        System.out.println("A student has joined the session. Now there are " + numParticipants + " students in the session.");
 
     }
 

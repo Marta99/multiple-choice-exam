@@ -31,10 +31,10 @@ public class Professor {
 
     public static void main(String[] args) {
         String sessionID = (args.length < 1) ? "SESSION1" : args[0];
-        int numParticipants = (args.length < 2) ? 1 : Integer.parseInt(args[1]);
+        int numParticipants = (args.length < 2) ? 0 : Integer.parseInt(args[1]);
         try {
             Registry registry = startRegistry(null);
-            Session session = new Session(sessionID, numParticipants);
+            Session session = new Session(sessionID, numParticipants+1);
             registry.bind(sessionID, (MultipleChoiceServer) session);
             System.err.println("Server ready. register clients and notify each 5 seconds");
             while (true) {
