@@ -2,6 +2,8 @@
 actor Student
 participant Session
 actor Professor
+Professor -> Professor: startRegistry(s)
+Student -> Student: logUpSession(s)
 Professor -> Session : startSession()
 Student -> Session : joinSession(studentID)
 Session -> Session : checkStudent(sessionID)
@@ -12,14 +14,14 @@ Professor -> Session : startExam()
 
 loop question n in questions
 
-    Session -> Student : showQuestion(Question n)
-    Session -> Student : showChoices(Question n.choices)
-    Student -> Session : answerQuestion(answerID)
+    Session -> Student : receiveQuestion(Question n)
+    Session -> Student : receiveChoices(Question n.choices)
+    Student -> Session : answerAnswer(answerID)
     Session -> Session : checkCorrectAnswer(answerID)
 
 end
 Session --> Professor : studentID has finished
-Session -> Student : showGrade(grade)
+Session -> Student : receiveGrade(grade)
 Session -> Student : finishSessionStudent()
 Session --> Professor : number_of_current_students
 

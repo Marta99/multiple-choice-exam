@@ -7,54 +7,69 @@ ArrowColor DarkSlateGray
 }
 skinparam stereotypeCBackgroundColor GreenYellow
 
-class Choice {
-    int id
-    String text
-}
-class Question {
-    String question
-    ArrayList<Choice> choices
-}
-class Professor {
-    void startSession()
-    void startExam()
-    void finishExam()
-    static void main(String[] args)
-}
-class Student {
-    String studentID
-    static void main(String[] args)
-}
-class Session {
-    HashMap<String, MultipleChoiceClient> students
-    int maxParticipants
-    String sessionID
-    boolean closed
-    boolean isClosed()
-    void finish()
-    void startExamSession()
-}
-class Exam implements Iterator {
-    ArrayList<Question> questions
-    boolean finished
-    void finish()
+package "java.rmi" #DDDDDD {
+    interface Remote {
+
+    }
 }
 interface Iterator<Question> {
     boolean hasNext()
     Question next()
 }
-together {
-    interface MultipleChoiceClient {
-        void receiveQuestion(Question)
-        void receiveChoices(ArrayList<Choice>)
-        void receiveGrade(grade: Integer)
-        void finishSessionStudent()
+interface Serializable {
+}
+package "common" {
+    class Choice implements Serializable {
+        int id
+        String text
     }
-    interface MultipleChoiceServer {
-        void joinSession(studentID)
-        void receiveQuestion(AnswerID)
+    class Question implements Serializable {
+        String question
+        ArrayList<Choice> choices
+    }
+    class Exam implements Iterator {
+        ArrayList<Question> questions
+        boolean finished
+        void finish()
+    }
+    together {
+        interface MultipleChoiceClient extends Remote {
+            void receiveQuestion(Question)
+            void receiveChoices(ArrayList<Choice>)
+            void receiveGrade(grade: Integer)
+            void finishSessionStudent()
+        }
+        interface MultipleChoiceServer extends Remote {
+            void joinSession(studentID)
+            void receiveAnswer(AnswerID)
+        }
+    }
+    
+}
+package "Server" {
+    class Professor {
+        void startSession()
+        void startExam()
+        void finishExam()
+        static void main(String[] args)
+    }
+    class Session {
+        HashMap<String, MultipleChoiceClient> students
+        int maxParticipants
+        String sessionID
+        boolean closed
+        boolean isClosed()
+        void finish()
+        void startExamSession()
     }
 }
+package "Client" {
+    class Student {
+        String studentID
+        static void main(String[] args)
+    }
+}
+
 Choice "1..*" -up-* "1" Question
 Question "1" -left-> "1" Choice: has correct answer >
 Exam "1" *-- "1..*" Question
