@@ -1,12 +1,15 @@
 package server;
 
 import common.MultipleChoiceServer;
+import server.Session;
 
+import java.io.IOException;
 import java.rmi.AccessException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+
 
 public class Professor {
 
@@ -31,16 +34,20 @@ public class Professor {
 
     public static void main(String[] args) {
         String sessionID = (args.length < 1) ? "SESSION1" : args[0];
-        int numParticipants = (args.length < 2) ? 0 : Integer.parseInt(args[1]);
+        //int numParticipants = (args.length < 2) ? 0 : Integer.parseInt(args[1]);
         try {
             Registry registry = startRegistry(null);
-            Session session = new Session(sessionID, numParticipants+1);
+            Session session = new Session(sessionID);
             registry.bind(sessionID, (MultipleChoiceServer) session);
             System.err.println("Server ready. register clients and notify each 5 seconds");
             while (true) {
+                Thread.sleep(5000);
+                System.err.println("Press enter when you want to start the exam.");
+                System.in.read();
+                session.notifyClients();
 
             }
-        } catch (RemoteException | AlreadyBoundException e) {
+        } catch (IOException | AlreadyBoundException | InterruptedException e) {
             e.printStackTrace();
         }
 
