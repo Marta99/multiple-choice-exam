@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface MultipleChoiceClient extends Remote {
 
-    void joinSession() throws RemoteException;
+    void receiveMSG(String msg) throws RemoteException;
 
     void receiveQuestion(Question question) throws RemoteException;
 

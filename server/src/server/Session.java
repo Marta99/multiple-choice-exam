@@ -1,5 +1,6 @@
 package src.server;
 
+import common.MultipleChoiceClient;
 import common.MultipleChoiceServer;
 
 import java.rmi.RemoteException;
@@ -15,7 +16,8 @@ public class Session implements MultipleChoiceServer {
     }
 
     @Override
-    public void joinSession(int i) throws RemoteException {
+    public void joinSession(MultipleChoiceClient multipleChoiceClient) throws RemoteException {
+        System.out.println("Accepted server");
 
     }
 
