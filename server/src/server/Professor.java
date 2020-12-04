@@ -1,4 +1,4 @@
-package src.server;
+package server;
 
 import common.MultipleChoiceServer;
 
@@ -37,6 +37,9 @@ public class Professor {
             Session session = new Session(sessionID, numParticipants);
             registry.bind(sessionID, (MultipleChoiceServer) session);
             System.err.println("Server ready. register clients and notify each 5 seconds");
+            while (true) {
+
+            }
         } catch (RemoteException | AlreadyBoundException e) {
             e.printStackTrace();
         }
