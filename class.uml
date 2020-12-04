@@ -1,0 +1,67 @@
+@startuml
+skinparam roundcorner 20
+skinparam class {
+BackgroundColor Azure
+BorderColor DarkSlateGray
+ArrowColor DarkSlateGray
+}
+skinparam stereotypeCBackgroundColor GreenYellow
+
+class Choice {
+    int id
+    String text
+}
+class Question {
+    String question
+    ArrayList<Choice> choices
+}
+class Professor {
+    void startSession()
+    void startExam()
+    void finishExam()
+    static void main(String[] args)
+}
+class Student {
+    String studentID
+    static void main(String[] args)
+}
+class Session {
+    HashMap<String, MultipleChoiceClient> students
+    int maxParticipants
+    String sessionID
+    boolean closed
+    boolean isClosed()
+    void finish()
+    void startExamSession()
+}
+class Exam implements Iterator {
+    ArrayList<Question> questions
+    boolean finished
+    void finish()
+}
+interface Iterator<Question> {
+    boolean hasNext()
+    Question next()
+}
+together {
+    interface MultipleChoiceClient {
+        void receiveQuestion(Question)
+        void receiveChoices(ArrayList<Choice>)
+        void receiveGrade(grade: Integer)
+        void finishSessionStudent()
+    }
+    interface MultipleChoiceServer {
+        void joinSession(studentID)
+        void receiveQuestion(AnswerID)
+    }
+}
+Choice "1..*" -up-* "1" Question
+Question "1" -left-> "1" Choice: has correct answer >
+Exam "1" *-- "1..*" Question
+Exam "1" -- "1" Session
+Session "1" *-- "1" Student
+Professor "1" -up- "1" Session
+MultipleChoiceClient <|.. Student
+MultipleChoiceServer <|.. Session
+
+@enduml
