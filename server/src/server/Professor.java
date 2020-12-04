@@ -1,5 +1,7 @@
 package src.server;
 
+import common.MultipleChoiceServer;
+
 import java.rmi.AccessException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
