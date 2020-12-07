@@ -52,7 +52,7 @@ public class Exam implements Iterator<QuestionAdapter> {
 
     public void evaluateLastQuestion(int i) throws Exception {
         QuestionAdapter last = this.getLastQuestion();
-        if (!(1 <= i && i < last.numAnswers()))
+        if (!(1 <= i && i <= last.numAnswers()))
             //TODO: Define a better exception
             throw new Exception("Not correct index");
         if (last.evaluate(i))

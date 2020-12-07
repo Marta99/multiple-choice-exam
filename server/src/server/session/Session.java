@@ -36,10 +36,10 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
     public String joinSession(MultipleChoiceClient client) throws RemoteException {
         if (this.state == SessionState.STARTED) {
             //TODO: Do it better from client part and here
-            System.out.println("CLIENT REJECTED");
+            System.out.println("STUDENT REJECTED");
             return "The Exam has already started.";
         } else if(this.state == SessionState.FINISHED) {
-            System.out.println("CLIENT REJECTED");
+            System.out.println("STUDENT REJECTED");
             return "The Exam has already finished.";
         }
         this.clients.put(client.getUniversityID(), client);
@@ -55,7 +55,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
             c.receiveMSG("Your exam has finished.");
             return;
         }
-        if (!(1 <= i && i < exam.getLastQuestion().numAnswers())) {
+        if (!(1 <= i && i <= exam.getLastQuestion().numAnswers())) {
             c.receiveMSG("Your answer is not properly suitable for that question. The question is:");
             c.receiveQuestion(exam.getLastQuestion().getQuestion());
             return;
