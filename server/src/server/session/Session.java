@@ -51,11 +51,14 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
     @Override
     public void receiveAnswer(MultipleChoiceClient c, int i) throws Exception {
         Exam exam = this.exams.get(c.getUniversityID());
+        String studentID = c.getUniversityID();
         if (exam.hasFinished()){
+            Professor.logger.warning("Student " + studentID + " has sent an answer.");
             c.receiveMSG("Your exam has finished.");
             return;
         }
         if (!(1 <= i && i <= exam.getLastQuestion().numAnswers())) {
+            Professor.logger.warning("Student " + studentID + " has answered with an incorrect value.");
             c.receiveMSG("Your answer is not properly suitable for that question. The question is:");
             c.receiveQuestion(exam.getLastQuestion().getQuestion());
             return;
