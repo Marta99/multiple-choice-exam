@@ -55,7 +55,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
             c.receiveMSG("Your exam has finished.");
             return;
         }
-        if (!(1 <= i && i < exam.getLastQuestion().numAnswers())) {
+        if (!(1 <= i && i <= exam.getLastQuestion().numAnswers())) {
             c.receiveMSG("Your answer is not properly suitable for that question. The question is:");
             c.receiveQuestion(exam.getLastQuestion().getQuestion());
             return;
