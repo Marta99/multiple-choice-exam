@@ -45,7 +45,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
         String studentID = client.getUniversityID();
         this.clients.put(studentID, client);
         Professor.logger.info("User " + studentID + " is joining the session");
-        professor.receiveMSG("Student " + studentID + "has joined the session " + sessionID + ".");
+        professor.receiveMSG("Student " + studentID + " has joined the session " + sessionID + ".");
         professor.receiveMSG("Now there are " + this.clients.size() + " students in the session.");
         return "You have joined the session";
     }
