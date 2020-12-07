@@ -35,15 +35,17 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
     @Override
     public String joinSession(MultipleChoiceClient client) throws RemoteException {
         if (this.state == SessionState.STARTED) {
-            //TODO: Do it better from client part and here
-            System.out.println("STUDENT REJECTED");
+            //TODO: Do it better from client part
+            Professor.logger.warning("User " + client.getUniversityID() + " attempt to joinSession but exam has already started.");
             return "The Exam has already started.";
         } else if(this.state == SessionState.FINISHED) {
-            System.out.println("STUDENT REJECTED");
+            Professor.logger.warning("User " + client.getUniversityID() + " attempt to joinSession but exam has finished.");
             return "The Exam has already finished.";
         }
-        this.clients.put(client.getUniversityID(), client);
-        professor.receiveMSG("A student has joined the session " + sessionID + ".");
+        String studentID = client.getUniversityID();
+        this.clients.put(studentID, client);
+        Professor.logger.info("User " + studentID + " is joining the session");
+        professor.receiveMSG("Student " + studentID + "has joined the session " + sessionID + ".");
         professor.receiveMSG("Now there are " + this.clients.size() + " students in the session.");
         return "You have joined the session";
     }
@@ -70,19 +72,21 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
     private void finishExamStudent(Exam exam) throws IOException {
         var c = exam.getStudent();
         String ID = c.getUniversityID();
+        Professor.logger.info(ID + " is finishing the exam.");
         c.receiveGrade(exam.finish());
         c.finishSessionStudent();
         professor.receiveMSG(ID + " has finished the exam with grade: " + exam.getGrade());
         clients.remove(ID);
         professor.receiveMSG("Now there are " + clients.size() + " students taking the exam.");
         if(clients.size()==0) {
+            Professor.logger.info("All the students have succesfully finished the exam");
             savingGrades();
         }
     }
 
     private void savingGrades() throws IOException {
+        Professor.logger.info("Saving the grades");
         professor.receiveMSG("The exam has finished.");
-        professor.receiveMSG("Saving the grades...");
         professor.receiveGrades(exams);
         System.exit(0);
     }
@@ -94,10 +98,12 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
         if (clients.size() == 0)
             throw new SessionException("There are no students in the session to start the session");
         this.state = SessionState.STARTED;
+        Professor.logger.info("Exam has started");
         clients.forEach((s, c) -> exams.put(s, new Exam(c, questions)));
         for (var e : exams.values()) {
             QuestionAdapter q = e.next();
             MultipleChoiceClient c = e.getStudent();
+            Professor.logger.info( "Starting exam for user " + c.getUniversityID());
             c.receiveQuestion(q.getQuestion());
         }
     }

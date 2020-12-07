@@ -72,9 +72,11 @@ public class Professor {
 
 
     public void receiveGrades(HashMap<String, Exam> exams) throws IOException {
+        logger.info("Saving grades.");
         for (Map.Entry<String, Exam> entry : exams.entrySet()) {
             writer.write(entry.getKey() + "," + entry.getValue());
         }
+        logger.info("Closing the grades file.");
         writer.close();
     }
 
