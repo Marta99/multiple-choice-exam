@@ -8,10 +8,8 @@ import server.scanner.UnsupportedCommandException;
 import server.session.Session;
 import server.session.SessionException;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.Buffer;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -37,7 +35,7 @@ public class Professor {
     }
 
 
-    public void finishExam() throws RemoteException {
+    public void finishExam() throws IOException {
         this.session.finishExam();
     }
 
@@ -68,10 +66,11 @@ public class Professor {
     }
 
 
-    public void receiveGrades(HashMap<String, Exam> exams) {
+    public void receiveGrades(HashMap<String, Exam> exams) throws IOException {
         for (Map.Entry<String, Exam> entry : exams.entrySet()) {
-
+            writer.write(entry.getKey() + "," + entry.getValue());
         }
+        writer.close();
     }
 
 
@@ -114,11 +113,12 @@ public class Professor {
 
     public static void main(String[] args) {
         String sessionID = (args.length < 1) ? "SESSION1" : args[0];
-        String pathExam = (args.length < 1) ? "./data/exam1.txt" : args[1];
+        String pathExam = (args.length < 2) ? "./data/exam1.txt" : args[1];
+        String pathGrades = (args.length < 3) ? "./data/grades1.txt" : args[1];
+
         //int numParticipants = (args.length < 2) ? 0 : Integer.parseInt(args[1]);
         try {
-
-            Professor professor = new Professor(new CommandScanner(), null);
+            Professor professor = new Professor(new CommandScanner(), new BufferedWriter(new FileWriter(pathGrades)));
             Session session = new Session(professor, sessionID, professor.loadQuestions(pathExam));
             bindingRegistry(sessionID, session);
             sessionFlow(professor, session);

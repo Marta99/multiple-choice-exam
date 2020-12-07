@@ -60,9 +60,6 @@ public class Exam implements Iterator<QuestionAdapter> {
     }
 
     public int finish() {
-        if (finished) {
-            throw new UnsupportedOperationException("The exam has finished");
-        }
         finished = true;
         return this.grade;
     }

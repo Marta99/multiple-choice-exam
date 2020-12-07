@@ -67,11 +67,24 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
             finishExamStudent(exam);
     }
 
-    private void finishExamStudent(Exam exam) throws RemoteException {
+    private void finishExamStudent(Exam exam) throws IOException {
         var c = exam.getStudent();
+        String ID = c.getUniversityID();
         c.receiveGrade(exam.finish());
         c.finishSessionStudent();
-        professor.receiveMSG(c.getUniversityID() + " has finished the exam with grade: " + exam.getGrade());
+        professor.receiveMSG(ID + " has finished the exam with grade: " + exam.getGrade());
+        clients.remove(ID);
+        professor.receiveMSG("Now there are " + clients.size() + " students taking the exam.");
+        if(clients.size()==0) {
+            savingGrades();
+        }
+    }
+
+    private void savingGrades() throws IOException {
+        professor.receiveMSG("The exam has finished.");
+        professor.receiveMSG("Saving the grades...");
+        professor.receiveGrades(exams);
+        System.exit(0);
     }
 
     @Override
@@ -90,7 +103,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
     }
 
     @Override
-    public void finishExam() throws RemoteException {
+    public void finishExam() throws IOException {
         if (this.state == SessionState.OPENED) {
             professor.receiveMSG("It can not be possible to finish the exam");
             return;
@@ -98,7 +111,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
         this.state = SessionState.FINISHED;
         for (Exam exam: exams.values().stream().filter(x -> !x.hasFinished()).collect(Collectors.toList()))
             finishExamStudent(exam);
-        this.professor.receiveGrades(this.exams);
+        savingGrades();
     }
 
     @Override
