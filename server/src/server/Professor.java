@@ -2,13 +2,25 @@ package server;
 
 import common.MultipleChoiceServer;
 
-import java.rmi.AccessException;
+import java.io.IOException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Collections;
+
 
 public class Professor {
+
+    private final Session session;
+
+    public Professor(Session session) {
+        this.session = session;
+    }
+
+    public void startExam() {
+        session.startExam();
+    }
 
     private static Registry startRegistry(Integer port) throws RemoteException {
         if(port == null) {
@@ -31,16 +43,19 @@ public class Professor {
 
     public static void main(String[] args) {
         String sessionID = (args.length < 1) ? "SESSION1" : args[0];
-        int numParticipants = (args.length < 2) ? 0 : Integer.parseInt(args[1]);
+        //int numParticipants = (args.length < 2) ? 0 : Integer.parseInt(args[1]);
         try {
             Registry registry = startRegistry(null);
-            Session session = new Session(sessionID, numParticipants+1);
+            Session session = new Session(sessionID, Collections.emptyList());
+            Professor professor = new Professor(session);
             registry.bind(sessionID, (MultipleChoiceServer) session);
             System.err.println("Server ready. register clients and notify each 5 seconds");
             while (true) {
-
+                synchronized (session) {
+                    session.notifyClients();
+                }
             }
-        } catch (RemoteException | AlreadyBoundException e) {
+        } catch (IOException | AlreadyBoundException e) {
             e.printStackTrace();
         }
 

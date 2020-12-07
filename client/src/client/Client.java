@@ -30,6 +30,10 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
             MultipleChoiceServer stub = (MultipleChoiceServer) registry.lookup(sessionID);
             stub.joinSession(client);
             System.out.println("You have joined the session, the exam is about to start.");
+            synchronized (client) {
+                client.wait();
+                System.exit(0);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
