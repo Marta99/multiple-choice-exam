@@ -77,11 +77,11 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
         String ID = c.getUniversityID();
         Professor.logger.info(ID + " is finishing the exam.");
         c.receiveGrade(exam.finish());
-        c.finishSessionStudent();
         professor.receiveMSG(ID + " has finished the exam with grade: " + exam.getGrade());
         clients.remove(ID);
         professor.receiveMSG("Now there are " + clients.size() + " students taking the exam.");
         if(clients.size()==0) {
+            this.state = SessionState.FINISHED;
             Professor.logger.info("All the students have succesfully finished the exam");
             savingGrades();
         }
@@ -91,11 +91,10 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
         Professor.logger.info("Saving the grades");
         professor.receiveMSG("The exam has finished.");
         professor.receiveGrades(exams);
-        System.exit(0);
     }
 
     @Override
-    public void startExam() throws SessionException, IOException {
+    synchronized public void startExam() throws SessionException, IOException {
         if (this.state != SessionState.OPENED)
             throw new UnsupportedSessionStateException("Session is not opened");
         if (clients.size() == 0)
@@ -109,6 +108,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
             Professor.logger.info( "Starting exam for user " + c.getUniversityID());
             c.receiveQuestion(q.getQuestion());
         }
+        Professor.logger.info("The exam has started for all users");
     }
 
     @Override

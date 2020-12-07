@@ -38,7 +38,6 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
             Client client = new Client(studentID, new AnswerScanner(), new Displayer());
             MultipleChoiceServer stub = (MultipleChoiceServer) registry.lookup(sessionID);
             client.joinSession(stub);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -74,7 +73,6 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
     public void receiveGrade(int i) throws RemoteException {
         displayer.display("You have finished the exam!");
         displayer.display("Your grade is: " + i);
-
     }
 
     @Override
@@ -90,4 +88,6 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
     public void display(String msg) {
         this.displayer.display(msg);
     }
+
+
 }
