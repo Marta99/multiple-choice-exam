@@ -20,4 +20,5 @@ public interface MultipleChoiceClient extends Remote {
 
     void finishSessionStudent() throws RemoteException;
 
+    String getUniversityID();
 }
