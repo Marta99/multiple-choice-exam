@@ -2,6 +2,7 @@ package server;
 
 import common.MultipleChoiceServer;
 import common.data.Question;
+import org.apache.logging.log4j.LogManager;
 import server.scanner.CommandScanner;
 import server.scanner.CommandScannerInt;
 import server.scanner.UnsupportedCommandException;
@@ -17,13 +18,15 @@ import java.rmi.registry.Registry;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 
 public class Professor {
 
     private final BufferedWriter writer;
     private Session session;
-    private CommandScannerInt scanner;
+    private final CommandScannerInt scanner;
+    public static Logger logger = Logger.getLogger("LOGGER");
 
     public Professor(CommandScannerInt scanner, BufferedWriter gradeWriter) {
         this.scanner = scanner;
@@ -36,10 +39,12 @@ public class Professor {
 
 
     public void finishExam() throws IOException {
+        logger.info("finish command");
         this.session.finishExam();
     }
 
     public void startExam() throws SessionException, IOException {
+        logger.info("start command");
         session.startExam();
     }
 
