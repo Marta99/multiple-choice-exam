@@ -22,12 +22,14 @@ public class Exam implements Iterator<QuestionAdapter> {
         grade = 0;
     }
 
-    public void finish(){
-        finished = true;
-    }
-
     public MultipleChoiceClient getStudent() {
         return student;
+    }
+
+    public int getGrade() {
+        if (!hasFinished())
+            throw new UnsupportedOperationException("The grade can not be until the exam finishes.");
+        return grade;
     }
 
     @Override
@@ -55,5 +57,17 @@ public class Exam implements Iterator<QuestionAdapter> {
             throw new Exception("Not correct index");
         if (last.evaluate(i))
             grade++;
+    }
+
+    public int finish() {
+        if (finished) {
+            throw new UnsupportedOperationException("The exam has finished");
+        }
+        finished = true;
+        return this.grade;
+    }
+
+    public boolean hasFinished() {
+        return this.finished;
     }
 }

@@ -9,22 +9,27 @@ import server.session.Session;
 import server.session.SessionException;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class Professor {
 
+    private final BufferedWriter writer;
     private Session session;
     private CommandScannerInt scanner;
 
-    public Professor(CommandScannerInt scanner) {
+    public Professor(CommandScannerInt scanner, BufferedWriter gradeWriter) {
         this.scanner = scanner;
+        this.writer = gradeWriter;
     }
 
     public void setSession(Session session) {
@@ -32,7 +37,7 @@ public class Professor {
     }
 
 
-    public void finishExam() {
+    public void finishExam() throws RemoteException {
         this.session.finishExam();
     }
 
@@ -63,21 +68,27 @@ public class Professor {
     }
 
 
+    public void receiveGrades(HashMap<String, Exam> exams) {
+        for (Map.Entry<String, Exam> entry : exams.entrySet()) {
+
+        }
+    }
+
 
     private static Registry startRegistry(Integer port) throws RemoteException {
-        if(port == null) {
+        if (port == null) {
             port = 1099;
         }
         try {
             Registry registry = LocateRegistry.getRegistry(port);
-            registry.list( );
+            registry.list();
             // The above call will throw an exception
             // if the registry does not already exist
             return registry;
         } catch (RemoteException ex) {
             // No valid registry at that port.
             System.out.println("RMI registry cannot be located ");
-            Registry registry= LocateRegistry.createRegistry(port);
+            Registry registry = LocateRegistry.createRegistry(port);
             System.out.println("RMI registry created at port ");
             return registry;
         }
@@ -106,7 +117,8 @@ public class Professor {
         String pathExam = (args.length < 1) ? "./data/exam1.txt" : args[1];
         //int numParticipants = (args.length < 2) ? 0 : Integer.parseInt(args[1]);
         try {
-            Professor professor = new Professor(new CommandScanner());
+
+            Professor professor = new Professor(new CommandScanner(), null);
             Session session = new Session(professor, sessionID, professor.loadQuestions(pathExam));
             bindingRegistry(sessionID, session);
             sessionFlow(professor, session);
@@ -115,6 +127,4 @@ public class Professor {
         }
 
     }
-
-
 }

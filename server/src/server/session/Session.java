@@ -2,7 +2,6 @@ package server.session;
 
 import common.MultipleChoiceClient;
 import common.MultipleChoiceServer;
-import common.data.Question;
 import server.Exam;
 import server.Professor;
 import server.QuestionAdapter;
@@ -12,6 +11,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Session extends UnicastRemoteObject implements MultipleChoiceServer, ExamController {
 
@@ -34,26 +34,44 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
 
     @Override
     public String joinSession(MultipleChoiceClient client) throws RemoteException {
-        if (this.state != SessionState.OPENED) {
+        if (this.state == SessionState.STARTED) {
             //TODO: Do it better from client part and here
             System.out.println("CLIENT REJECTED");
-            return "CLIENT REJECTED FROM SERVER";
+            return "The Exam has already started.";
+        } else if(this.state == SessionState.FINISHED) {
+            System.out.println("CLIENT REJECTED");
+            return "The Exam has already finished.";
         }
         this.clients.put(client.getUniversityID(), client);
         professor.receiveMSG("A student has joined the session " + sessionID + ".");
         professor.receiveMSG("Now there are " + this.clients.size() + " students in the session.");
-        return "CLIENT HAS JOINED THE SESSION";
+        return "You have joined the session";
     }
 
     @Override
     public void receiveAnswer(MultipleChoiceClient c, int i) throws Exception {
         Exam exam = this.exams.get(c.getUniversityID());
-        if (!(1 <= i && i < exam.getLastQuestion().numAnswers()))
-            System.out.println("Answer not received well");
+        if (exam.hasFinished()){
+            c.receiveMSG("Your exam has finished.");
+            return;
+        }
+        if (!(1 <= i && i < exam.getLastQuestion().numAnswers())) {
+            c.receiveMSG("Your answer is not properly suitable for that question. The question is:");
+            c.receiveQuestion(exam.getLastQuestion().getQuestion());
+            return;
+        }
         exam.evaluateLastQuestion(i);
         if (exam.hasNext())
-            exam.next();
+            c.receiveQuestion(exam.next().getQuestion());
+        else
+            finishExamStudent(exam);
+    }
+
+    private void finishExamStudent(Exam exam) throws RemoteException {
+        var c = exam.getStudent();
+        c.receiveGrade(exam.finish());
         c.finishSessionStudent();
+        professor.receiveMSG(c.getUniversityID() + " has finished the exam with grade: " + exam.getGrade());
     }
 
     @Override
@@ -72,11 +90,15 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
     }
 
     @Override
-    public void finishExam() {
-        if (this.state != SessionState.STARTED)
-            //TODO: Not able to blabalbal
+    public void finishExam() throws RemoteException {
+        if (this.state == SessionState.OPENED) {
+            professor.receiveMSG("It can not be possible to finish the exam");
             return;
+        }
         this.state = SessionState.FINISHED;
+        for (Exam exam: exams.values().stream().filter(x -> !x.hasFinished()).collect(Collectors.toList()))
+            finishExamStudent(exam);
+        this.professor.receiveGrades(this.exams);
     }
 
     @Override
