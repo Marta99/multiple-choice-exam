@@ -4,11 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class Scanner implements ScannerInt {
+public class CommandScanner implements CommandScannerInt {
 
     private final BufferedReader reader;
 
-    public Scanner() {
+    public CommandScanner() {
         InputStreamReader input = new InputStreamReader(System.in);
         this.reader = new BufferedReader(input);
     }

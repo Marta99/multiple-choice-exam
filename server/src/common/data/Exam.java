@@ -1,21 +1,25 @@
 package common.data;
 
 import common.MultipleChoiceClient;
+import server.QuestionAdapter;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Exam implements Iterator<Question> {
-    private final Iterator<Question> iterator;
+public class Exam implements Iterator<QuestionAdapter> {
+    private final Iterator<QuestionAdapter> iterator;
     private final MultipleChoiceClient student;
     private boolean finished;
+    private QuestionAdapter last;
+    private int grade;
 
-    public Exam (MultipleChoiceClient c, List<Question> questions) {
+    public Exam (MultipleChoiceClient c, List<QuestionAdapter> questionsList) {
         this.student = c;
-        ArrayList<Question> questions1 = new ArrayList<Question>(questions);
+        ArrayList<QuestionAdapter> questions = new ArrayList<QuestionAdapter>(questionsList);
         finished = false;
-        this.iterator = questions1.iterator();
+        this.iterator = questions.iterator();
+        grade = 0;
     }
 
     public void finish(){
@@ -35,7 +39,21 @@ public class Exam implements Iterator<Question> {
     }
 
     @Override
-    public Question next() {
-        return this.iterator.next();
+    public QuestionAdapter next() {
+        this.last = this.iterator.next();
+        return last;
+    }
+
+    public QuestionAdapter getLastQuestion() {
+        return last;
+    }
+
+    public void evaluateLastQuestion(int i) throws Exception {
+        QuestionAdapter last = this.getLastQuestion();
+        if (!(1 <= i && i < last.numAnswers()))
+            //TODO: Define a better exception
+            throw new Exception("Not correct index");
+        if (last.evaluate(i))
+            grade++;
     }
 }

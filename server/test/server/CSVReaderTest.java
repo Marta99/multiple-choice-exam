@@ -78,27 +78,30 @@ class CSVReaderTest {
 
     @Test
     void addQuestion() {
-        Question question = CSVReader.addQuestion(questions.get(0));
+        QuestionAdapter question = CSVReader.addQuestion(questions.get(0));
         List<String> answers = List.of("Answer1", "Answer2", "Answer3", "Answer4");
-        Question expected = createQuestion(1, answers);
+        QuestionAdapter expected = createQuestion(1, answers);
         assertEquals(expected, question);
     }
 
-    private Question createQuestion(int iQuestion, List<String> answers) {
-        return new Question("Question" + iQuestion, answers.stream()
-                .map(x -> {
-                    String value = String.valueOf(x.charAt(x.length() - 1));
-                    int i = Integer.parseInt(value);
-                    return new Choice(i, x);
-                }).collect(Collectors.toList()), 2);
+    private QuestionAdapter createQuestion(int iQuestion, List<String> answers) {
+        return new QuestionAdapter(
+                new Question("Question" + iQuestion, answers.stream()
+                        .map(x -> {
+                            String value = String.valueOf(x.charAt(x.length() - 1));
+                            int i = Integer.parseInt(value);
+                            return new Choice(i, x);
+                        })
+                        .collect(Collectors.toList())),
+                2);
     }
 
     @Test
     void readFile() {
         List<String> answers = List.of("Answer1", "Answer2", "Answer3", "Answer4");
-        List<Question> currentQuestions  = reader.getQuestions();
-        for(int i=0; i < currentQuestions.size(); i++) {
-            assertEquals(createQuestion(i+1, answers), currentQuestions.get(i));
+        List<QuestionAdapter> currentQuestions = reader.getQuestions();
+        for (int i = 0; i < currentQuestions.size(); i++) {
+            assertEquals(createQuestion(i + 1, answers), currentQuestions.get(i));
         }
     }
 }

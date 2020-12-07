@@ -5,19 +5,28 @@ import common.MultipleChoiceServer;
 import common.data.Choice;
 import common.data.Question;
 
+import java.io.IOException;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
+import java.util.Optional;
 
 
 public class Client extends UnicastRemoteObject implements MultipleChoiceClient {
+    private final AnswerScannerInt<Integer> scanner;
+    private final DisplayerInt displayer;
     private String studentID;
+    private MultipleChoiceServer session;
 
-    public Client(String studentID) throws RemoteException {
+    public Client(String studentID, AnswerScannerInt<Integer> scanner, DisplayerInt displayer) throws RemoteException {
+        super();
         this.studentID = studentID;
+        this.scanner = scanner;
+        this.displayer = displayer;
     }
 
     public static void main(String[] args) {
@@ -26,18 +35,21 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
         String studentID = (args.length < 3) ? "78099079A" : args[2];
         try {
             Registry registry = LocateRegistry.getRegistry(host);
-            MultipleChoiceClient client = new Client(studentID);
+            Client client = new Client(studentID, new AnswerScanner(), new Displayer());
             MultipleChoiceServer stub = (MultipleChoiceServer) registry.lookup(sessionID);
-            stub.joinSession(client);
-            System.out.println("You have joined the session, the exam is about to start.");
-            synchronized (client) {
-                client.wait();
-                System.exit(0);
-            }
+            client.joinSession(stub);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+    public void joinSession(MultipleChoiceServer session) throws RemoteException {
+        this.session = session;
+        String msg = session.joinSession((MultipleChoiceClient) this);
+        System.out.println(msg);
+    }
+
 
     @Override
     public void receiveMSG(String s) throws RemoteException {
@@ -45,13 +57,14 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
     }
 
     @Override
-    public void receiveQuestion(Question question) throws RemoteException {
-
-    }
-
-    @Override
-    public void receiveChoices(List<Choice> list) throws RemoteException {
-
+    public void receiveQuestion(Question question) throws Exception {
+        displayer.display(question.toString());
+        Optional<Integer> optAnswer = scanner.scanAnswerID();
+        while(optAnswer.isEmpty()) {
+            displayer.display("Answer not supported");
+            optAnswer = scanner.scanAnswerID();
+        }
+        session.receiveAnswer(this, optAnswer.get());
     }
 
     @Override
@@ -62,5 +75,14 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
     @Override
     public void finishSessionStudent() throws RemoteException {
 
+    }
+
+    @Override
+    public String getUniversityID() throws RemoteException {
+        return this.studentID;
+    }
+
+    public void display(String msg) {
+        this.displayer.display(msg);
     }
 }
