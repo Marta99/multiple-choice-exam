@@ -58,7 +58,10 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
 
     @Override
     public void receiveQuestion(Question question) throws Exception {
-        displayer.display(question.toString());
+        displayer.display(question.getQuestionTitle());
+        for (var choice: question.getChoices()) {
+            displayer.display(choice.getChoice());
+        }
         Optional<Integer> optAnswer = scanner.scanAnswerID();
         while(optAnswer.isEmpty()) {
             displayer.display("Answer not supported");
