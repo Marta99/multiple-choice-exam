@@ -2,19 +2,19 @@ package server;
 
 import common.data.Choice;
 import common.data.Question;
-import common.data.QuestionInt;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class QuestionAdapter implements QuestionInt {
+public class QuestionAdapter {
 
-    private final Question question;
     private final int correctAnswer;
+    private final Question question;
 
-    public QuestionAdapter(Question question, int i) {
-        this.question = question;
+    public QuestionAdapter(Question q, int correctAnswer) {
+        this.question = q;
         //Check correct <= choices.size()
-        this.correctAnswer = i;
+        this.correctAnswer = correctAnswer;
     }
 
     public boolean evaluate(int i) {
@@ -25,18 +25,8 @@ public class QuestionAdapter implements QuestionInt {
         return question;
     }
 
-    @Override
+
     public int numAnswers() {
         return question.numAnswers();
-    }
-
-    @Override
-    public String getQuestionTitle() {
-        return question.getQuestionTitle();
-    }
-
-    @Override
-    public List<Choice> getChoices() {
-        return question.getChoices();
     }
 }

@@ -5,12 +5,12 @@ import java.util.Objects;
 
 public class Choice implements Serializable {
     private final int id;
-    private final String answer;
+    private final String question;
 
 
-    public Choice(int id, String answer) {
+    public Choice(int id, String question) {
         this.id = id;
-        this.answer = answer;
+        this.question = question;
     }
 
     @Override
@@ -18,16 +18,19 @@ public class Choice implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Choice choice = (Choice) o;
-        return id == choice.id && answer.equals(choice.answer);
+        return id == choice.id && question.equals(choice.question);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, answer);
+        return Objects.hash(id, question);
     }
 
     @Override
     public String toString() {
-        return "Choice " + id + ": " + answer;
+        return "Choice{" +
+                "id=" + id +
+                ", question='" + question + '\'' +
+                '}';
     }
 }

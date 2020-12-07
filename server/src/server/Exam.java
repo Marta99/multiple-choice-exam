@@ -1,4 +1,4 @@
-package common.data;
+package server;
 
 import common.MultipleChoiceClient;
 import server.QuestionAdapter;

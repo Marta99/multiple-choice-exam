@@ -2,18 +2,16 @@ package server.session;
 
 import common.MultipleChoiceClient;
 import common.MultipleChoiceServer;
-import common.data.Exam;
 import common.data.Question;
+import server.Exam;
 import server.Professor;
 import server.QuestionAdapter;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Session extends UnicastRemoteObject implements MultipleChoiceServer, ExamController {
 
@@ -23,7 +21,6 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
     private final Professor professor;
     private SessionState state;
     private final HashMap<String, Exam> exams;
-
 
 
     public Session(Professor professor, String sessionID, List<QuestionAdapter> questions) throws RemoteException {
@@ -44,7 +41,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
         }
         this.clients.put(client.getUniversityID(), client);
         professor.receiveMSG("A student has joined the session " + sessionID + ".");
-        professor.receiveMSG("Now there are " + this.clients.size() +" students in the session.");
+        professor.receiveMSG("Now there are " + this.clients.size() + " students in the session.");
         return "CLIENT HAS JOINED THE SESSION";
     }
 
@@ -67,9 +64,10 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
             throw new SessionException("There are no students in the session to start the session");
         this.state = SessionState.STARTED;
         clients.forEach((s, c) -> exams.put(s, new Exam(c, questions)));
-        for(var e: exams.values()) {
+        for (var e : exams.values()) {
             QuestionAdapter q = e.next();
-            e.getStudent().receiveQuestion(q.getQuestion());
+            MultipleChoiceClient c = e.getStudent();
+            c.receiveQuestion(q.getQuestion());
         }
     }
 

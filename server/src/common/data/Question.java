@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Question implements Serializable, QuestionInt {
+public class Question implements Serializable {
     private final String question;
     private final List<Choice> choices;
 
@@ -15,17 +15,14 @@ public class Question implements Serializable, QuestionInt {
         this.choices = choices;
     }
 
-    @Override
     public int numAnswers() {
         return this.choices.size();
     }
 
-    @Override
     public String getQuestionTitle() {
         return this.question;
     }
 
-    @Override
     public List<Choice> getChoices() {
         return List.copyOf(this.choices);
     }
