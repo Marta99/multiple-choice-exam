@@ -7,6 +7,7 @@ import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Collections;
 
 
 public class Professor {
@@ -45,17 +46,16 @@ public class Professor {
         //int numParticipants = (args.length < 2) ? 0 : Integer.parseInt(args[1]);
         try {
             Registry registry = startRegistry(null);
-            Session session = new Session(sessionID);
+            Session session = new Session(sessionID, Collections.emptyList());
             Professor professor = new Professor(session);
             registry.bind(sessionID, (MultipleChoiceServer) session);
             System.err.println("Server ready. register clients and notify each 5 seconds");
             while (true) {
                 synchronized (session) {
                     session.notifyClients();
-                    session
                 }
             }
-        } catch (IOException | AlreadyBoundException | InterruptedException e) {
+        } catch (IOException | AlreadyBoundException e) {
             e.printStackTrace();
         }
 
