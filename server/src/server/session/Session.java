@@ -89,7 +89,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
         try {
             MultipleChoiceClient client = exam.getStudent();
             Professor.logger.info(ID + " is finishing the exam.");
-            client.receiveGrade(exam.finish(), questions.size());
+            client.receiveGrade(exam.finish());
         } catch (RemoteException ex) {
             Professor.logger.warning("User " + ID + " has disconnected.");
         }
@@ -142,7 +142,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
     @Override
     public void finishExam() throws IOException {
         if (this.state == SessionState.OPENED) {
-            professor.receiveMSG("It can not be possible to finish the exam");
+            professor.receiveMSG("It is not possible to finish the exam, it has not been started already.");
             return;
         }
         this.state = SessionState.FINISHED;

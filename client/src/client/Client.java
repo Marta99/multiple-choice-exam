@@ -21,6 +21,7 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
     private final DisplayerInt displayer;
     private String studentID;
     private MultipleChoiceServer session;
+    private int answeredQuestions = 0;
 
 
     public Client(String studentID, AnswerScannerInt<Integer> scanner, DisplayerInt displayer) throws RemoteException {
@@ -31,7 +32,7 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
     }
 
     public static void main(String[] args) throws InterruptedException {
-        String studentID = (args.length < 1) ? "78099079A" : args[0];
+        String studentID = (args.length < 1) ? "78099079B" : args[0];
         String sessionID = (args.length < 2) ? "SESSION1" : args[1];
         String host = (args.length < 3) ? null : args[2];
         try {
@@ -75,13 +76,14 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
             displayer.display("Answer not supported");
             optAnswer = scanner.scanAnswerID();
         }
+        answeredQuestions += 1;
         session.receiveAnswer(this, optAnswer.get());
     }
 
     @Override
-    public void receiveGrade(int grade, int numQuestions) throws RemoteException {
+    public void receiveGrade(int grade) throws RemoteException {
         displayer.display("You have finished the exam!");
-        displayer.display("Your grade is: " + grade + "/" + numQuestions);
+        displayer.display("Your grade is: " + grade + "/" + this.answeredQuestions);
         synchronized (this){
             this.notify();
         }
