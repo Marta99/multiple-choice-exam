@@ -61,7 +61,7 @@ public class Professor {
         logger.info("Saving grades.");
         BufferedWriter writer = new BufferedWriter(new FileWriter(pathGrade));
         for (Map.Entry<String, Exam> entry : exams.entrySet()) {
-            writer.write(entry.getKey() + "," + entry.getValue().getGrade());
+            writer.write(entry.getKey() + "," + entry.getValue().getGrade() + '\n');
         }
         logger.info("Closing the grades file.");
         writer.close();
@@ -104,9 +104,10 @@ public class Professor {
                     session.wait();
                     if (lastCommand == Command.START_EXAM) {
                         professor.startExam();
-                    } else {
+                    } else if (lastCommand == Command.FINISH_EXAM){
                         professor.finishExam();
                     }
+                    lastCommand = null;
                     logger.info("In the end of the loop.");
                     logger.info("Session: " + session.hasFinished());
                 } catch (InterruptedException | SessionException e) {
