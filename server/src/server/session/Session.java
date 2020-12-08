@@ -9,6 +9,7 @@ import server.QuestionAdapter;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,12 +35,15 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
 
     @Override
     public String joinSession(MultipleChoiceClient client) throws RemoteException {
-        if (this.state == SessionState.STARTED) {
+        if (clients.containsKey(client.getUniversityID())) {
+            Professor.logger.warning("Student with an already registered Id attempt to joinSession");
+            return "There is a student with tha same ID registered in the session. Try to reconnect with a different ID.";
+        } else if (this.state == SessionState.STARTED) {
             //TODO: Do it better from client part
-            Professor.logger.warning("User " + client.getUniversityID() + " attempt to joinSession but exam has already started.");
+            Professor.logger.warning("Student with ID " + client.getUniversityID() + " attempt to joinSession but exam has already started.");
             return "The Exam has already started.";
         } else if(this.state == SessionState.FINISHED) {
-            Professor.logger.warning("User " + client.getUniversityID() + " attempt to joinSession but exam has finished.");
+            Professor.logger.warning("Student with ID " + client.getUniversityID() + " attempt to joinSession but exam has finished.");
             return "The Exam has already finished.";
         }
         String studentID = client.getUniversityID();

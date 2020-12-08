@@ -51,6 +51,9 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
         this.session = session;
         String msg = session.joinSession((MultipleChoiceClient) this);
         System.out.println(msg);
+        if (!msg.equals("You have joined the session")) {
+            System.exit(0);
+        }
     }
 
 
