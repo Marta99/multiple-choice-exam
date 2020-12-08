@@ -40,9 +40,9 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
         try {
             String studentID = client.getUniversityID();
             if (clients.containsKey(studentID)) {
-            	Professor.logger.warning("Student with an already registered Id attempt to joinSession");
-            	return "There is a student with tha same ID registered in the session. Try to reconnect with a different ID.";
-        	} else if (this.state == SessionState.STARTED) {
+                Professor.logger.warning("Student with an already registered Id attempt to joinSession");
+                return "There is a student with tha same ID registered in the session. Try to reconnect with a different ID.";
+            } else if (this.state == SessionState.STARTED) {
                 //TODO: Do it better from client part
                 Professor.logger.warning("User " + studentID + " attempt to joinSession but exam has already started.");
                 return "The Exam has already started.";
@@ -63,26 +63,38 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
     }
 
     @Override
-    public void receiveAnswer(MultipleChoiceClient c, int i) throws Exception {
-        String studentID = c.getUniversityID();
-        Exam exam = this.exams.get(studentID);
-        if (exam.hasFinished()) {
-            Professor.logger.warning("Student " + studentID + " has sent an answer.");
-            c.receiveMSG("Your exam has finished.");
-            return;
+    public void receiveAnswer(MultipleChoiceClient client, int i) throws Exception {
+        try {
+            String studentID = client.getUniversityID();
+            Exam exam = this.exams.get(studentID);
+            if (state != SessionState.STARTED) {
+                Professor.logger.warning("Student " + studentID + " has sent an answer and exam is not in a correct state.");
+                client.receiveMSG("Sorry. I can't take into account your answer.");
+                if (state == SessionState.FINISHED)
+                    client.receiveGrade(exam.getGrade());
+                return;
+            }
+            if (exam.hasFinished()) {
+                Professor.logger.warning("Student " + studentID + " has sent an answer.");
+                client.receiveMSG("Your exam has finished.");
+                return;
+            }
+            if (!(1 <= i && i <= exam.getLastQuestion().numAnswers())) {
+                Professor.logger.warning("Student " + studentID + " has answered with an incorrect value.");
+                client.receiveMSG("Your answer is not properly suitable for that question. The question is:");
+                client.receiveQuestion(exam.getLastQuestion().getQuestion());
+                return;
+            }
+            Professor.logger.info("Checking answer of student " + studentID);
+            exam.evaluateLastQuestion(i);
+            if (exam.hasNext())
+                client.receiveQuestion(exam.next().getQuestion());
+            else
+                finishExamStudent(studentID, exam);
+        } catch (RemoteException e) {
+            Professor.logger.warning("Lost connection of user");
         }
-        if (!(1 <= i && i <= exam.getLastQuestion().numAnswers())) {
-            Professor.logger.warning("Student " + studentID + " has answered with an incorrect value.");
-            c.receiveMSG("Your answer is not properly suitable for that question. The question is:");
-            c.receiveQuestion(exam.getLastQuestion().getQuestion());
-            return;
-        }
-        Professor.logger.info("Checking answer of student " + studentID);
-        exam.evaluateLastQuestion(i);
-        if (exam.hasNext())
-            c.receiveQuestion(exam.next().getQuestion());
-        else
-            finishExamStudent(studentID, exam);
+
     }
 
     private void finishExamStudent(String ID, Exam exam) throws IOException {
