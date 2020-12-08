@@ -16,7 +16,7 @@ public class Exam implements Iterator<QuestionAdapter> {
 
     public Exam (MultipleChoiceClient c, List<QuestionAdapter> questionsList) {
         this.student = c;
-        ArrayList<QuestionAdapter> questions = new ArrayList<QuestionAdapter>(questionsList);
+        ArrayList<QuestionAdapter> questions = new ArrayList<>(questionsList);
         finished = false;
         this.iterator = questions.iterator();
         grade = 0;
@@ -35,6 +35,8 @@ public class Exam implements Iterator<QuestionAdapter> {
     @Override
     public boolean hasNext() {
         boolean hasNext = this.iterator.hasNext();
+        if (hasFinished())
+            return false;
         if (!hasNext && !finished)
             finished = true;
         return hasNext;
@@ -42,6 +44,8 @@ public class Exam implements Iterator<QuestionAdapter> {
 
     @Override
     public QuestionAdapter next() {
+        if (hasFinished())
+            throw new UnsupportedOperationException("It cannot be possible to send the next question.");
         this.last = this.iterator.next();
         return last;
     }
@@ -50,11 +54,12 @@ public class Exam implements Iterator<QuestionAdapter> {
         return last;
     }
 
-    public void evaluateLastQuestion(int i) throws Exception {
+    public void evaluateLastQuestion(int i) throws UnsupportedOperationException {
         QuestionAdapter last = this.getLastQuestion();
+        if (last == null)
+            throw new UnsupportedOperationException("There is no last question.");
         if (!(1 <= i && i <= last.numAnswers()))
-            //TODO: Define a better exception
-            throw new Exception("Not correct index");
+            throw new UnsupportedOperationException("Not correct index");
         if (last.evaluate(i))
             grade++;
     }

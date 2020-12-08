@@ -27,7 +27,8 @@ public class CSVReader {
         String question = words.get(0);
         List<String> strChoices = words.subList(1, words.size() - 1);
         List<Choice> choices = getChoices(strChoices);
-        int correct = Integer.parseInt(words.get(words.size() - 1));
+        String lastWord = words.get(words.size() - 1);
+        int correct = Integer.parseInt(lastWord.split("[[.]]")[0]);
         return new QuestionAdapter(new Question(question, choices), correct);
     }
 
