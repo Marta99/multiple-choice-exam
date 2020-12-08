@@ -11,7 +11,7 @@ import java.util.List;
 
 public class CSVReader {
 
-    private final List<Question> questions;
+    private final List<QuestionAdapter> questions;
 
     public CSVReader(BufferedReader reader) throws IOException {
         this.questions = new ArrayList<>();
@@ -22,13 +22,13 @@ public class CSVReader {
         }
     }
 
-    protected static Question addQuestion(String line) {
+    protected static QuestionAdapter addQuestion(String line) {
         List<String> words = Arrays.asList(line.split("[[;]['\n]]"));
         String question = words.get(0);
         List<String> strChoices = words.subList(1, words.size() - 1);
         List<Choice> choices = getChoices(strChoices);
         int correct = Integer.parseInt(words.get(words.size() - 1));
-        return new Question(question, choices, correct);
+        return new QuestionAdapter(new Question(question, choices), correct);
     }
 
     protected static List<Choice> getChoices(List<String> strChoices) {
@@ -39,7 +39,7 @@ public class CSVReader {
         return choices;
     }
 
-    public List<Question> getQuestions() {
+    public List<QuestionAdapter> getQuestions() {
         return questions;
     }
 }
