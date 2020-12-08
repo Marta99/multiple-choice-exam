@@ -82,7 +82,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
         var c = exam.getStudent();
         String ID = c.getUniversityID();
         Professor.logger.info(ID + " is finishing the exam.");
-        c.receiveGrade(exam.finish());
+        c.receiveGrade(exam.finish(), questions.size());
         professor.receiveMSG(ID + " has finished the exam with grade: " + exam.getGrade());
         clients.remove(ID);
         professor.receiveMSG("Now there are " + clients.size() + " students taking the exam.");

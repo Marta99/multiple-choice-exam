@@ -77,9 +77,9 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
     }
 
     @Override
-    public void receiveGrade(int i) throws RemoteException {
+    public void receiveGrade(int grade, int numQuestions) throws RemoteException {
         displayer.display("You have finished the exam!");
-        displayer.display("Your grade is: " + i);
+        displayer.display("Your grade is: " + grade + "/" + numQuestions);
         synchronized (this){
             this.notify();
         }
