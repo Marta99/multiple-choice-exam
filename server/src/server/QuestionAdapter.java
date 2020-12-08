@@ -14,7 +14,8 @@ public class QuestionAdapter {
 
     public QuestionAdapter(Question q, int correctAnswer) {
         this.question = q;
-        //Check correct <= choices.size()
+        if (!(0 < correctAnswer && correctAnswer <= q.numAnswers()))
+            throw new UnsupportedOperationException("Correct answer must be between 1 and " + q.numAnswers());
         this.correctAnswer = correctAnswer;
     }
 
