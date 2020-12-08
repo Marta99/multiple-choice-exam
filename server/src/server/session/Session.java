@@ -43,6 +43,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
             return "The Exam has already finished.";
         }
         String studentID = client.getUniversityID();
+        //TODO: Que passa quan hi ha 2 persones amb el mateix ID.
         this.clients.put(studentID, client);
         Professor.logger.info("User " + studentID + " is joining the session");
         professor.receiveMSG("Student " + studentID + " has joined the session " + sessionID + ".");
