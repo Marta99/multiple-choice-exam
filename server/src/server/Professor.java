@@ -125,6 +125,8 @@ public class Professor {
             Session session = new Session(professor, sessionID, professor.loadQuestions(pathExam));
             bindingRegistry(sessionID, session);
             sessionFlow(professor, session);
+            Professor.logger.info("In order to start the exam is needed to write 'start' in the terminal");
+            Professor.logger.info("In order to finish the exam is needed to write 'finish' in the terminal");
         } catch (IOException | AlreadyBoundException e) {
             e.printStackTrace();
         }
