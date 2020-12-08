@@ -119,8 +119,8 @@ public class Professor {
 
     public static void main(String[] args) {
         String sessionID = (args.length < 1) ? "SESSION1" : args[0];
-        String pathExam = (args.length < 2) ? "./data/exam1.txt" : args[1];
-        String pathGrades = (args.length < 3) ? "./data/grades1.txt" : args[1];
+        String pathExam = (args.length < 2) ? "./data/exam1.csv" : args[1];
+        String pathGrades = (args.length < 3) ? "./data/grades1.csv" : args[1];
         try {
             Professor professor = new Professor(pathGrades);
             Session session = new Session(professor, sessionID, professor.loadQuestions(pathExam));
