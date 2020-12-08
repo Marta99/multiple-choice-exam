@@ -21,7 +21,7 @@ class ExamTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        CSVReader reader = new CSVReader(new BufferedReader(new FileReader("./data/exam1.txt")));
+        CSVReader reader = new CSVReader(new BufferedReader(new FileReader("./data/exam1.csv")));
         client = Mockito.mock(MultipleChoiceClient.class);
         questions = reader.getQuestions();
         exam = new Exam(client, questions);

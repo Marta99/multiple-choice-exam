@@ -26,7 +26,7 @@ class SessionTest {
     @BeforeEach
     void setUp() throws IOException {
         professorMock = Mockito.mock(Professor.class);
-        CSVReader reader = new CSVReader(new BufferedReader(new FileReader("./data/exam1.txt")));
+        CSVReader reader = new CSVReader(new BufferedReader(new FileReader("./data/exam1.csv")));
         client = Mockito.mock(MultipleChoiceClient.class);
         Mockito.when(client.getUniversityID()).thenReturn("1234567890");
         questions = reader.getQuestions();
