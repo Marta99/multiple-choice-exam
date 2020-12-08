@@ -37,7 +37,6 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
 
     @Override
     public String joinSession(MultipleChoiceClient client) throws RemoteException {
-HEAD
         try {
             String studentID = client.getUniversityID();
             if (clients.containsKey(studentID)) {
@@ -58,7 +57,6 @@ HEAD
             professor.receiveMSG("Now there are " + this.clients.size() + " students in the session.");
         } catch (RemoteException e) {
             Professor.logger.warning("Lost connection of user ");
-37dddeea425a95333c39a41b6d86faa234287323
         }
         return "You have joined the session";
 
@@ -87,12 +85,11 @@ HEAD
             finishExamStudent(studentID, exam);
     }
 
-HEAD
     private void finishExamStudent(String ID, Exam exam) throws IOException {
         try {
             MultipleChoiceClient client = exam.getStudent();
             Professor.logger.info(ID + " is finishing the exam.");
-            client.receiveGrade(exam.finish());
+            client.receiveGrade(exam.finish(), questions.size());
         } catch (RemoteException ex) {
             Professor.logger.warning("User " + ID + " has disconnected.");
         }
@@ -109,7 +106,6 @@ HEAD
             }
         }
     }
-37dddeea425a95333c39a41b6d86faa234287323
 
     private void savingGrades() throws IOException {
         Professor.logger.info("Saving the grades");
