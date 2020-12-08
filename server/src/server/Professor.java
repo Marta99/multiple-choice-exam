@@ -1,8 +1,7 @@
 package server;
 
 import common.MultipleChoiceServer;
-import common.data.Question;
-import org.apache.logging.log4j.LogManager;
+import server.scanner.Command;
 import server.scanner.CommandScanner;
 import server.scanner.CommandScannerInt;
 import server.scanner.UnsupportedCommandException;
@@ -10,7 +9,6 @@ import server.session.Session;
 import server.session.SessionException;
 
 import java.io.*;
-import java.nio.Buffer;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -18,19 +16,19 @@ import java.rmi.registry.Registry;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 
 public class Professor {
 
-    private final BufferedWriter writer;
+    private final String pathGrade;
     private Session session;
-    private final CommandScannerInt scanner;
     public static Logger logger = Logger.getLogger("LOGGER");
+    private static Command lastCommand;
 
-    public Professor(CommandScannerInt scanner, BufferedWriter gradeWriter) {
-        this.scanner = scanner;
-        this.writer = gradeWriter;
+    public Professor(String pathGrade) {
+        this.pathGrade = pathGrade;
     }
 
     public void setSession(Session session) {
@@ -53,18 +51,6 @@ public class Professor {
     }
 
 
-    private void scan() throws IOException, UnsupportedCommandException, SessionException {
-        //TODO: We could do it with hashamp command-runnable but it is not worth it.
-        switch (this.scanner.scan()) {
-            case START_EXAM:
-                this.startExam();
-                break;
-            case FINISH_EXAM:
-                this.finishExam();
-                break;
-        }
-    }
-
     public List<QuestionAdapter> loadQuestions(String path) throws IOException {
         CSVReader reader = new CSVReader(new BufferedReader(new FileReader(path)));
         return reader.getQuestions();
@@ -73,8 +59,9 @@ public class Professor {
 
     public void receiveGrades(HashMap<String, Exam> exams) throws IOException {
         logger.info("Saving grades.");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(pathGrade));
         for (Map.Entry<String, Exam> entry : exams.entrySet()) {
-            writer.write(entry.getKey() + "," + entry.getValue());
+            writer.write(entry.getKey() + "," + entry.getValue().getGrade());
         }
         logger.info("Closing the grades file.");
         writer.close();
@@ -108,12 +95,23 @@ public class Professor {
 
 
     private static void sessionFlow(Professor professor, Session session) throws IOException {
-        while (!session.hasFinished()) {
-            try {
-                System.out.print("> ");
-                professor.scan();
-            } catch (SessionException | UnsupportedCommandException e) {
-                System.err.println(e.getClass().getSimpleName() + ": " + e.getMessage());
+        new ScannerThread(session, new CommandScanner()).start();
+        synchronized (session) {
+            while (!session.hasFinished()) {
+                logger.info("At the beginning of the loop.");
+                try {
+                    System.out.print("> ");
+                    session.wait();
+                    if (lastCommand == Command.START_EXAM) {
+                        professor.startExam();
+                    } else {
+                        professor.finishExam();
+                    }
+                    logger.info("In the end of the loop.");
+                    logger.info("Session: " + session.hasFinished());
+                } catch (InterruptedException | SessionException e) {
+                    System.err.println(e.getClass().getSimpleName() + ": " + e.getMessage());
+                }
             }
         }
     }
@@ -122,16 +120,47 @@ public class Professor {
         String sessionID = (args.length < 1) ? "SESSION1" : args[0];
         String pathExam = (args.length < 2) ? "./data/exam1.txt" : args[1];
         String pathGrades = (args.length < 3) ? "./data/grades1.txt" : args[1];
-
-        //int numParticipants = (args.length < 2) ? 0 : Integer.parseInt(args[1]);
         try {
-            Professor professor = new Professor(new CommandScanner(), new BufferedWriter(new FileWriter(pathGrades)));
+            Professor professor = new Professor(pathGrades);
             Session session = new Session(professor, sessionID, professor.loadQuestions(pathExam));
             bindingRegistry(sessionID, session);
             sessionFlow(professor, session);
         } catch (IOException | AlreadyBoundException e) {
             e.printStackTrace();
         }
+        System.exit(0);
 
+    }
+
+    private static class ScannerThread extends Thread {
+
+        private final CommandScannerInt scanner;
+        private final Session semaphore;
+
+        public ScannerThread(Session semaphore, CommandScannerInt scanner) {
+            this.scanner = scanner;
+            this.semaphore = semaphore;
+        }
+
+        @Override
+        public void run() {
+            Optional<Command> command;
+            while (true) {
+                try {
+                    command = Optional.of(scanner.scan());
+                } catch (IOException e) {
+                    command = Optional.empty();
+                } catch (UnsupportedCommandException e) {
+                    System.err.println(e.getMessage());
+                    command = Optional.empty();
+                }
+                if (command.isPresent()) {
+                    synchronized (semaphore) {
+                        lastCommand = command.get();
+                        semaphore.notify();
+                    }
+                }
+            }
+        }
     }
 }

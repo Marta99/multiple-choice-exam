@@ -65,6 +65,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
             c.receiveQuestion(exam.getLastQuestion().getQuestion());
             return;
         }
+        Professor.logger.info("Checking answer of student " + studentID);
         exam.evaluateLastQuestion(i);
         if (exam.hasNext())
             c.receiveQuestion(exam.next().getQuestion());
@@ -81,15 +82,15 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
         clients.remove(ID);
         professor.receiveMSG("Now there are " + clients.size() + " students taking the exam.");
         if(clients.size()==0) {
-            this.state = SessionState.FINISHED;
             Professor.logger.info("All the students have succesfully finished the exam");
+            this.state = SessionState.FINISHED;
+            professor.receiveMSG("The exam has finished.");
             savingGrades();
         }
     }
 
     private void savingGrades() throws IOException {
         Professor.logger.info("Saving the grades");
-        professor.receiveMSG("The exam has finished.");
         professor.receiveGrades(exams);
     }
 
@@ -106,7 +107,13 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
             QuestionAdapter q = e.next();
             MultipleChoiceClient c = e.getStudent();
             Professor.logger.info( "Starting exam for user " + c.getUniversityID());
-            c.receiveQuestion(q.getQuestion());
+            new Thread(() -> {
+                try {
+                    c.receiveQuestion(q.getQuestion());
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }).start();
         }
         Professor.logger.info("The exam has started for all users");
     }
@@ -118,6 +125,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
             return;
         }
         this.state = SessionState.FINISHED;
+        professor.receiveMSG("The exam has finished.");
         for (Exam exam: exams.values().stream().filter(x -> !x.hasFinished()).collect(Collectors.toList()))
             finishExamStudent(exam);
         savingGrades();

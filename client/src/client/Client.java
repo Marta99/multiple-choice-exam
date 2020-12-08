@@ -36,11 +36,15 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
         try {
             Registry registry = LocateRegistry.getRegistry(host);
             Client client = new Client(studentID, new AnswerScanner(), new Displayer());
-            MultipleChoiceServer stub = (MultipleChoiceServer) registry.lookup(sessionID);
-            client.joinSession(stub);
+            synchronized (client) {
+                MultipleChoiceServer stub = (MultipleChoiceServer) registry.lookup(sessionID);
+                client.joinSession(stub);
+                client.wait();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.exit(0);
     }
 
     public void joinSession(MultipleChoiceServer session) throws RemoteException {
@@ -73,6 +77,9 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
     public void receiveGrade(int i) throws RemoteException {
         displayer.display("You have finished the exam!");
         displayer.display("Your grade is: " + i);
+        synchronized (this){
+            this.notify();
+        }
     }
 
     @Override
