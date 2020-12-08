@@ -104,9 +104,10 @@ public class Professor {
                     session.wait();
                     if (lastCommand == Command.START_EXAM) {
                         professor.startExam();
-                    } else {
+                    } else if (lastCommand == Command.FINISH_EXAM){
                         professor.finishExam();
                     }
+                    lastCommand = null;
                     logger.info("In the end of the loop.");
                     logger.info("Session: " + session.hasFinished());
                 } catch (InterruptedException | SessionException e) {

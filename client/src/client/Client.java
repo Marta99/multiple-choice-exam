@@ -22,6 +22,7 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
     private String studentID;
     private MultipleChoiceServer session;
 
+
     public Client(String studentID, AnswerScannerInt<Integer> scanner, DisplayerInt displayer) throws RemoteException {
         super();
         this.studentID = studentID;
@@ -29,7 +30,7 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
         this.displayer = displayer;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         String host = (args.length < 1) ? null : args[0];
         String sessionID = (args.length < 2) ? "SESSION1" : args[1];
         String studentID = (args.length < 3) ? "78099079A" : args[2];
@@ -44,6 +45,7 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Thread.sleep(50);
         System.exit(0);
     }
 
