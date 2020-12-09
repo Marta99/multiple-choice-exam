@@ -14,6 +14,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.Optional;
+import java.util.Scanner;
 
 
 public class Client extends UnicastRemoteObject implements MultipleChoiceClient {
@@ -32,11 +33,14 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
     }
 
     public static void main(String[] args) throws InterruptedException {
-        String studentID = (args.length < 1) ? "78099079B" : args[0];
+        //String studentID = (args.length < 1) ? "78099079B" : args[0];
         String sessionID = (args.length < 2) ? "SESSION1" : args[1];
         String host = (args.length < 3) ? null : args[2];
         try {
             Registry registry = LocateRegistry.getRegistry(host);
+            System.out.print("Enter your student ID: ");
+            Scanner scanner = new Scanner(System.in);
+            String studentID = scanner.nextLine();
             Client client = new Client(studentID, new AnswerScanner(), new Displayer());
             synchronized (client) {
                 MultipleChoiceServer stub = (MultipleChoiceServer) registry.lookup(sessionID);
