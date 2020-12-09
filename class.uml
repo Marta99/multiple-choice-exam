@@ -12,9 +12,9 @@ package "java.rmi" #DDDDDD {
 
     }
 }
-interface Iterator<Question> {
+interface Iterator<QuestionAdapter> {
     boolean hasNext()
-    Question next()
+    QuestionAdapter next()
 }
 interface Serializable {
 }
@@ -27,56 +27,75 @@ package "common" {
         String question
         ArrayList<Choice> choices
     }
-    class Exam implements Iterator {
-        ArrayList<Question> questions
-        boolean finished
-        void finish()
+    interface MultipleChoiceClient extends Remote {
+        void receiveQuestion(Question)
+        void receiveChoices(ArrayList<Choice>)
+        void receiveGrade(grade: Integer)
+        void finishSessionStudent()
     }
-    together {
-        interface MultipleChoiceClient extends Remote {
-            void receiveQuestion(Question)
-            void receiveChoices(ArrayList<Choice>)
-            void receiveGrade(grade: Integer)
-            void finishSessionStudent()
-        }
-        interface MultipleChoiceServer extends Remote {
-            void joinSession(studentID)
-            void receiveAnswer(AnswerID)
-        }
-    }
-    
-}
-package "Server" {
-    class Professor {
-        void startSession()
-        void startExam()
-        void finishExam()
-        static void main(String[] args)
-    }
-    class Session {
-        HashMap<String, MultipleChoiceClient> students
-        int maxParticipants
-        String sessionID
-        boolean closed
-        boolean isClosed()
-        void finish()
-        void startExamSession()
-    }
-}
-package "Client" {
-    class Student {
-        String studentID
-        static void main(String[] args)
+    interface MultipleChoiceServer extends Remote {
+        void joinSession(studentID)
+        void receiveAnswer(AnswerID)
     }
 }
 
+package "Server" {
+    class Professor {
+        String pathGrade;
+        void startSession()
+        void startExam()
+        void finishExam()
+        void receiveMSG(String msg)
+        receiveGrades(HashMap<String, Exam> exams)
+        static void main(String[] args)
+    }
+    interface ExamController {
+        void startExam()
+        void finishExam()
+        boolean hasFinished()
+    }
+    class Session {
+        HashMap<String, MultipleChoiceClient> students
+        String sessionID
+    }
+    enum SessionState {
+        OPENED
+        STARTED
+        FINISHED
+    }
+    class QuestionAdapter {
+        int correctAnswer
+        boolean evaluate(int i)
+        int numAnswers()
+    }
+
+    class Exam implements Iterator {
+        ArrayList<QuestionAdapter> questions
+        boolean finished
+        void finish()
+        int getGrade()
+        void evaluateLastQuestion(int i)
+    }
+}
+
+package "Client" {
+    class Student {
+        String studentID
+        void joinSession(MultipleChoiceServer s)
+        static void main(String[] args)
+    }
+}
+Question <-- QuestionAdapter
 Choice "1..*" -up-* "1" Question
-Question "1" -left-> "1" Choice: has correct answer >
-Exam "1" *-- "1..*" Question
-Exam "1" -- "1" Session
+Exam "1" --> "1" MultipleChoiceClient
+Exam "1" *-- "1..*" QuestionAdapter
+Exam "1" --> "1" QuestionAdapter: lastQuestion
+Exam "1..*" --* "1" Session
 Session "1" *-- "1" Student
 Professor "1" -up- "1" Session
+SessionState "1" <-- "1" Session
 MultipleChoiceClient <|.. Student
 MultipleChoiceServer <|.. Session
+ExamController <|.. Session
 
 @enduml
