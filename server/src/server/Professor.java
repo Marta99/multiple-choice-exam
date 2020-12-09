@@ -59,7 +59,7 @@ public class Professor {
         logger.info("Saving grades...");
         BufferedWriter writer = new BufferedWriter(new FileWriter(pathGrade));
         for (Map.Entry<String, Exam> entry : exams.entrySet()) {
-            writer.write(entry.getKey() + "," + entry.getValue().getGrade() + '\n');
+            writer.write(entry.getKey() + "," + entry.getValue().getGrade() + "/" + entry.getValue().getNumQuestions() + '\n');
         }
         writer.close();
     }
