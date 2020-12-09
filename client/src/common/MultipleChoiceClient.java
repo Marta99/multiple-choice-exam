@@ -16,7 +16,7 @@ public interface MultipleChoiceClient extends Remote {
 
     void receiveQuestion(Question question) throws IOException, Exception;
 
-    void receiveGrade(int grade) throws RemoteException;
+    void receiveGrade(int grade, int numQuestions) throws RemoteException;
 
     void finishSessionStudent() throws RemoteException;
 

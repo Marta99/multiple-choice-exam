@@ -71,7 +71,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
                 Professor.logger.warning("Student " + studentID + " has sent an answer and exam is not in a correct state.");
                 client.receiveMSG("Sorry. I can't take into account your answer.");
                 if (state == SessionState.FINISHED)
-                    client.receiveGrade(exam.getGrade());
+                    client.receiveGrade(exam.getGrade(), this.questions.size());
                 return;
             }
             if (exam.hasFinished()) {
@@ -101,7 +101,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
         try {
             MultipleChoiceClient client = exam.getStudent();
             Professor.logger.info(ID + " is finishing the exam.");
-            client.receiveGrade(exam.finish());
+            client.receiveGrade(exam.finish(), this.questions.size());
         } catch (RemoteException ex) {
             Professor.logger.warning("User " + ID + " has disconnected.");
         }

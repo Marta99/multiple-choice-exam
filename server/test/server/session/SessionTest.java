@@ -103,10 +103,10 @@ class SessionTest {
         Thread.sleep(200);
         session.finishExam();
         Thread.sleep(200);
-        Mockito.verify(client).receiveGrade(0);
+        Mockito.verify(client).receiveGrade(0, 5);
         session.receiveAnswer(client, 2);
         Mockito.verify(client).receiveMSG("Sorry. I can't take into account your answer.");
-        Mockito.verify(client, Mockito.times(2)).receiveGrade(0);
+        Mockito.verify(client, Mockito.times(2)).receiveGrade(0, 5);
     }
 
     @Test
