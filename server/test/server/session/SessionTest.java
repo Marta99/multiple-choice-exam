@@ -76,7 +76,7 @@ class SessionTest {
         session.joinSession(client);
         session.startExam();
         MultipleChoiceClient client2 = Mockito.mock(MultipleChoiceClient.class);
-        String expected = "The Exam has already started.";
+        String expected = "The Exam has already started. You can't connect.";
         assertEquals(expected, session.joinSession(client2));
     }
 

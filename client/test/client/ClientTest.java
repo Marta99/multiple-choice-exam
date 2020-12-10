@@ -33,7 +33,6 @@ class ClientTest {
         displayer = Mockito.mock(Displayer.class);
         String studentID = "123456ASDF32";
         client = new Client(studentID, scanner, displayer);
-
     }
 
     @Test
@@ -53,28 +52,35 @@ class ClientTest {
 
     @Test
     void receiveQuestion() throws Exception {
+        String msg = "You have joined the session";
+        Mockito.when(server.joinSession(client)).thenReturn(msg);
+        client.joinSession(server);
+        Mockito.verify(displayer).display(msg);
         int i = 1;
         ArrayList<Choice> choices = new ArrayList<>();
-        List<String> choicesString = List.of("Choice1", "Choice2", "Choice3", "Choice4");
+        final List<String> choicesString = List.of("Choice1", "Choice2", "Choice3", "Choice4");
         for (var choice : choicesString) {
             choices.add(new Choice(i, choice));
             ++i;
         }
-        Question question = new Question("QuestionTitle", choices);
+        final String questionTitle = "QuestionTitle";
+        Question question = new Question(questionTitle, choices);
         Mockito.when(scanner.scanAnswerID()).thenReturn(Optional.of(2));
         client.receiveQuestion(question);
-
+        Mockito.verify(displayer).display(questionTitle);
+        i = 1;
+        for (String s : choicesString) {
+            Mockito.verify(displayer).display( "\t" + i + "- " + s);
+            ++i;
+        }
+        Mockito.verify(server).receiveAnswer(client, 2);
     }
 
     @Test
-    void receiveGrade() {
-    }
-
-    @Test
-    void finishSessionStudent() {
-    }
-
-    @Test
-    void getUniversityID() {
+    void receiveGrade() throws RemoteException {
+        client.receiveGrade(2, 3);
+        Mockito.verify(displayer, Mockito.times(2)).display(Mockito.anyString());
+        Mockito.verify(displayer).display("You have finished the exam!");
+        Mockito.verify(displayer).display("Your grade is: " + 2 + "/" + 3);
     }
 }
