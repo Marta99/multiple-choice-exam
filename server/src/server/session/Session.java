@@ -45,7 +45,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
             } else if (this.state == SessionState.STARTED) {
                 //TODO: Do it better from client part
                 Professor.logger.warning("User " + studentID + " attempt to joinSession but exam has already started.");
-                return "The Exam has already started.";
+                return "The Exam has already started. You can't connect.";
             } else if (this.state == SessionState.FINISHED) {
                 Professor.logger.warning("User " + studentID + " attempt to joinSession but exam has finished.");
                 return "The Exam has already finished.";
