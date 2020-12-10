@@ -13,6 +13,7 @@ public class Exam implements Iterator<QuestionAdapter> {
     private boolean finished;
     private QuestionAdapter last;
     private int grade;
+    private int numQuestions;
 
     public Exam (MultipleChoiceClient c, List<QuestionAdapter> questionsList) {
         this.student = c;
@@ -20,6 +21,7 @@ public class Exam implements Iterator<QuestionAdapter> {
         finished = false;
         this.iterator = questions.iterator();
         grade = 0;
+        numQuestions = questions.size();
     }
 
     public MultipleChoiceClient getStudent() {
@@ -30,6 +32,10 @@ public class Exam implements Iterator<QuestionAdapter> {
         if (!hasFinished())
             throw new UnsupportedOperationException("The grade can not be until the exam finishes.");
         return grade;
+    }
+
+    public int getNumQuestions() {
+        return numQuestions;
     }
 
     @Override

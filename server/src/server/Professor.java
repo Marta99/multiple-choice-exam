@@ -37,12 +37,10 @@ public class Professor {
 
 
     public void finishExam() throws IOException {
-        logger.info("finish command");
         this.session.finishExam();
     }
 
     public void startExam() throws SessionException, IOException {
-        logger.info("start command");
         session.startExam();
     }
 
@@ -58,12 +56,11 @@ public class Professor {
 
 
     public void receiveGrades(HashMap<String, Exam> exams) throws IOException {
-        logger.info("Saving grades.");
+        logger.info("Saving grades...");
         BufferedWriter writer = new BufferedWriter(new FileWriter(pathGrade));
         for (Map.Entry<String, Exam> entry : exams.entrySet()) {
-            writer.write(entry.getKey() + "," + entry.getValue().getGrade() + '\n');
+            writer.write(entry.getKey() + "," + entry.getValue().getGrade() + "/" + entry.getValue().getNumQuestions() + '\n');
         }
-        logger.info("Closing the grades file.");
         writer.close();
     }
 
@@ -90,7 +87,7 @@ public class Professor {
     private static void bindingRegistry(String sessionID, MultipleChoiceServer session) throws RemoteException, AlreadyBoundException {
         Registry registry = startRegistry(null);
         registry.bind(sessionID, session);
-        System.err.println("Server ready. register clients and notify each 5 seconds");
+        System.err.println("Server ready. Waiting for students to join the session.");
     }
 
 
@@ -98,7 +95,6 @@ public class Professor {
         new ScannerThread(session, new CommandScanner()).start();
         synchronized (session) {
             while (!session.hasFinished()) {
-                logger.info("At the beginning of the loop.");
                 try {
                     System.out.print("> ");
                     session.wait();
@@ -108,8 +104,6 @@ public class Professor {
                         professor.finishExam();
                     }
                     lastCommand = null;
-                    logger.info("In the end of the loop.");
-                    logger.info("Session: " + session.hasFinished());
                 } catch (InterruptedException | SessionException e) {
                     System.err.println(e.getClass().getSimpleName() + ": " + e.getMessage());
                 }

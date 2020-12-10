@@ -55,14 +55,14 @@ class SessionTest {
 
     @Test
     void joinSessionTwice() throws RemoteException {
-        String expected = "There is a student with tha same ID registered in the session. Try to reconnect with a different ID.";
+        String expected = "There is a student with tha same ID in the session. Try to reconnect with a different ID.";
         session.joinSession(client);
         assertEquals(expected, session.joinSession(client));
     }
 
     @Test
     void joinSessionWith2UsersWithSameID() throws RemoteException {
-        String expected = "There is a student with tha same ID registered in the session. Try to reconnect with a different ID.";
+        String expected = "There is a student with tha same ID in the session. Try to reconnect with a different ID.";
         session.joinSession(client);
         MultipleChoiceClient client2 = Mockito.mock(MultipleChoiceClient.class);
         Mockito.when(client2.getUniversityID()).thenReturn("1234567890");
@@ -103,10 +103,10 @@ class SessionTest {
         Thread.sleep(200);
         session.finishExam();
         Thread.sleep(200);
-        Mockito.verify(client).receiveGrade(0);
+        Mockito.verify(client).receiveGrade(0, 5);
         session.receiveAnswer(client, 2);
         Mockito.verify(client).receiveMSG("Sorry. I can't take into account your answer.");
-        Mockito.verify(client, Mockito.times(2)).receiveGrade(0);
+        Mockito.verify(client, Mockito.times(2)).receiveGrade(0, 5);
     }
 
     @Test
