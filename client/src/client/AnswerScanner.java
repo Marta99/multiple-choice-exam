@@ -11,7 +11,6 @@ public class AnswerScanner implements AnswerScannerInt<Integer> {
     public AnswerScanner() {
         InputStreamReader input = new InputStreamReader(System.in);
         this.reader = new BufferedReader(input);
-
     }
 
     @Override

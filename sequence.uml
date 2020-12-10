@@ -6,7 +6,6 @@ Professor -> Professor: startRegistry(s)
 Student -> Student: logUpSession(s)
 Professor -> Session : startSession()
 Student -> Session : joinSession(studentID)
-Session -> Session : checkStudent(sessionID)
 Session --> Student : accept
 Session --> Professor : student StudentID joined the Session
 Session --> Professor : number_of_current_students
@@ -15,7 +14,6 @@ Professor -> Session : startExam()
 loop question n in questions
 
     Session -> Student : receiveQuestion(Question n)
-    Session -> Student : receiveChoices(Question n.choices)
     Student -> Session : answerAnswer(answerID)
     Session -> Session : checkCorrectAnswer(answerID)
 
@@ -27,5 +25,6 @@ Session --> Professor : number_of_current_students
 
 Professor -> Session : finishExam()
 Session -> Session : finishExam()
+Session -> Professor : savingGrades(grades)
 Session --> Professor : finished_exam
 @enduml
