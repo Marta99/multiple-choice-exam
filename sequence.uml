@@ -25,6 +25,6 @@ Session --> Professor : number_of_current_students
 
 Professor -> Session : finishExam()
 Session -> Session : finishExam()
-Session -> Professor : savinGrades(grades)
+Session -> Professor : savingGrades(grades)
 Session --> Professor : finished_exam
 @enduml
