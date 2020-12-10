@@ -64,6 +64,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
     public void receiveAnswer(MultipleChoiceClient client, int i) throws Exception {
         try {
             String studentID = client.getUniversityID();
+            Professor.logger.info("Received answer for " + studentID);
             Exam exam = this.exams.get(studentID);
             if (state != SessionState.STARTED) {
                 client.receiveMSG("Sorry. I can't take into account your answer.");
@@ -80,11 +81,14 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
                 client.receiveQuestion(exam.getLastQuestion().getQuestion());
                 return;
             }
-            exam.evaluateLastQuestion(i);
+            synchronized (exam) {
+                exam.evaluateLastQuestion(i);
+            }
             if (exam.hasNext())
-                client.receiveQuestion(exam.next().getQuestion());
-            else
-                finishExamStudent(studentID, exam);
+                    client.receiveQuestion(exam.next().getQuestion());
+                else
+                    finishExamStudent(studentID, exam);
+
         } catch (RemoteException e) {
             Professor.logger.warning("Lost connection of user");
         }
