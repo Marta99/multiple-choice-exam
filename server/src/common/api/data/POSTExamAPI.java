@@ -41,17 +41,4 @@ public class POSTExamAPI implements JsonSerializable {
     public String toJson() throws JsonProcessingException {
         return new ObjectMapper().writeValueAsString(this);
     }
-
-    public static void main(String[] args) throws POSTExamAPIBuilderException, JsonProcessingException {
-        var exam = new POSTExamAPIBuilder()
-                .title("My title")
-                .description("My description")
-                .dateStart("START")
-                .dateFinish("FINISH")
-                .location(new LocationAPI(1, "host", "bind"))
-                .addQuestion(new QuestionAPI("Title", List.of(new ChoiceAPI(1, "Reponse")), 1))
-                .addStudent(new StudentAPI("STUDENTID1"))
-                .build();
-        System.out.println(exam.toJson());
-    }
 }
