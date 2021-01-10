@@ -39,7 +39,6 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
         Scanner scanner = new Scanner(System.in);
         String studentID = scanner.nextLine();
         int examID = (args.length < 1) ? 2 : Integer.parseInt(args[0]);
-        System.out.println(examID);
         Optional<LocationAPI> location  = MyExams.verifyStudentID(examID, studentID);
         if (location.isEmpty()) {
             System.out.println("Not accepted ID.");
@@ -62,9 +61,8 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
     }
 
     private static Registry getRegistry(Optional<LocationAPI> location) throws RemoteException {
-        System.out.println(location.get().getHost());
         if (location.get().getHost() == "localhost")
-            return LocateRegistry.getRegistry();
+            return LocateRegistry.getRegistry(null, location.get().getPort());
         return LocateRegistry.getRegistry(location.get().getHost(), location.get().getPort());
     }
 

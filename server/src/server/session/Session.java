@@ -95,7 +95,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
 
     }
 
-    private void finishExamStudent(String ID, Exam exam) throws IOException {
+    private void finishExamStudent(String ID, Exam exam) throws IOException, InterruptedException {
         try {
             MultipleChoiceClient client = exam.getStudent();
             client.receiveGrade(exam.finish(), this.questions.size());
@@ -116,7 +116,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
         }
     }
 
-    private void savingGrades() throws IOException {
+    private void savingGrades() throws IOException, InterruptedException {
         Professor.logger.info("Saving the grades...");
         professor.receiveGrades(exams);
     }
@@ -140,6 +140,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
                     c.receiveQuestion(q.getQuestion());
                 } catch (IOException ioException) {
                     Professor.logger.warning("Could not connect with Student " + studentID);
+                    System.out.println(ioException.getMessage());
                 }
             });
             t.start();
@@ -148,7 +149,7 @@ public class Session extends UnicastRemoteObject implements MultipleChoiceServer
     }
 
     @Override
-    public void finishExam() throws IOException {
+    public void finishExam() throws IOException, InterruptedException {
         if (this.state == SessionState.OPENED) {
             professor.receiveMSG("It is not possible to finish the exam, it has not been started already.");
             return;
