@@ -81,7 +81,7 @@ class SessionTest {
     }
 
     @Test
-    void joinExamAfterFinishing() throws IOException, SessionException {
+    void joinExamAfterFinishing() throws IOException, SessionException, InterruptedException {
         session.joinSession(client);
         session.startExam();
         session.finishExam();
@@ -172,7 +172,7 @@ class SessionTest {
     }
 
     @Test
-    void finishingCorrectlyExam() throws IOException, SessionException {
+    void finishingCorrectlyExam() throws IOException, SessionException, InterruptedException {
         session.joinSession(client);
         session.startExam();
         session.finishExam();
@@ -180,7 +180,7 @@ class SessionTest {
     }
 
     @Test
-    void finishingExamBeforeStarting() throws IOException {
+    void finishingExamBeforeStarting() throws IOException, InterruptedException {
         session.joinSession(client);
         session.finishExam();
         Mockito.verify(professorMock).receiveMSG("It is not possible to finish the exam, it has not been started already.");

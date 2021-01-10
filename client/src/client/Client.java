@@ -2,6 +2,8 @@ package client;
 
 import common.MultipleChoiceClient;
 import common.MultipleChoiceServer;
+import common.api.MyExams;
+import common.api.data.LocationAPI;
 import common.data.Choice;
 import common.data.Question;
 
@@ -31,15 +33,20 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
         this.displayer = displayer;
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException {
         //String studentID = (args.length < 1) ? "78099079B" : args[0];
-        String sessionID = (args.length < 2) ? "SESSION1" : args[1];
-        String host = (args.length < 3) ? null : args[2];
+        System.out.print("Enter your student ID: ");
+        Scanner scanner = new Scanner(System.in);
+        String studentID = scanner.nextLine();
+        int examID = (args.length < 1) ? 2 : Integer.parseInt(args[0]);
+        Optional<LocationAPI> location  = MyExams.verifyStudentID(examID, studentID);
+        if (location.isEmpty()) {
+            System.out.println("Not accepted ID.");
+            System.exit(-1);
+        }
+        String sessionID = location.get().getBindKey();
         try {
-            Registry registry = LocateRegistry.getRegistry(host);
-            System.out.print("Enter your student ID: ");
-            Scanner scanner = new Scanner(System.in);
-            String studentID = scanner.nextLine();
+            Registry registry = getRegistry(location);
             Client client = new Client(studentID, new AnswerScanner(), new Displayer());
             synchronized (client) {
                 MultipleChoiceServer stub = (MultipleChoiceServer) registry.lookup(sessionID);
@@ -51,6 +58,12 @@ public class Client extends UnicastRemoteObject implements MultipleChoiceClient 
         }
         Thread.sleep(50);
         System.exit(0);
+    }
+
+    private static Registry getRegistry(Optional<LocationAPI> location) throws RemoteException {
+        if (location.get().getHost() == "localhost")
+            return LocateRegistry.getRegistry(null, location.get().getPort());
+        return LocateRegistry.getRegistry(location.get().getHost(), location.get().getPort());
     }
 
     public void joinSession(MultipleChoiceServer session) throws RemoteException {

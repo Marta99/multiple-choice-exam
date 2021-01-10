@@ -1,6 +1,10 @@
 package server;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import common.MultipleChoiceServer;
+import common.api.MyExams;
+import common.api.data.*;
+import server.data.ExamInfo;
 import server.scanner.Command;
 import server.scanner.CommandScanner;
 import server.scanner.CommandScannerInt;
@@ -18,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 
 public class Professor {
@@ -26,6 +31,7 @@ public class Professor {
     private Session session;
     public static Logger logger = Logger.getLogger("LOGGER");
     private static Command lastCommand;
+    private ExamAPI examAPI;
 
     public Professor(String pathGrade) {
         this.pathGrade = pathGrade;
@@ -36,7 +42,7 @@ public class Professor {
     }
 
 
-    public void finishExam() throws IOException {
+    public void finishExam() throws IOException, InterruptedException {
         this.session.finishExam();
     }
 
@@ -55,11 +61,15 @@ public class Professor {
     }
 
 
-    public void receiveGrades(HashMap<String, Exam> exams) throws IOException {
+    public void receiveGrades(HashMap<String, Exam> exams) throws IOException, InterruptedException {
         logger.info("Saving grades...");
         BufferedWriter writer = new BufferedWriter(new FileWriter(pathGrade));
         for (Map.Entry<String, Exam> entry : exams.entrySet()) {
             writer.write(entry.getKey() + "," + entry.getValue().getGrade() + "/" + entry.getValue().getNumQuestions() + '\n');
+            MyExams.storeGrades(
+                    this.examAPI.getId(),
+                    entry.getKey(),
+                    new GradeAPI(entry.getValue().getGrade(), new StudentAPI(entry.getKey())));
         }
         writer.close();
     }
@@ -79,13 +89,13 @@ public class Professor {
             // No valid registry at that port.
             System.out.println("RMI registry cannot be located ");
             Registry registry = LocateRegistry.createRegistry(port);
-            System.out.println("RMI registry created at port ");
+            System.out.println("RMI registry created at port " + port);
             return registry;
         }
     }
 
-    private static void bindingRegistry(String sessionID, MultipleChoiceServer session) throws RemoteException, AlreadyBoundException {
-        Registry registry = startRegistry(null);
+    private static void bindingRegistry(String sessionID, MultipleChoiceServer session, int port) throws RemoteException, AlreadyBoundException {
+        Registry registry = startRegistry(port);
         registry.bind(sessionID, session);
         System.err.println("Server ready. Waiting for students to join the session.");
     }
@@ -100,7 +110,7 @@ public class Professor {
                     session.wait();
                     if (lastCommand == Command.START_EXAM) {
                         professor.startExam();
-                    } else if (lastCommand == Command.FINISH_EXAM){
+                    } else if (lastCommand == Command.FINISH_EXAM) {
                         professor.finishExam();
                     }
                     lastCommand = null;
@@ -111,22 +121,42 @@ public class Professor {
         }
     }
 
-    public static void main(String[] args) {
-        String sessionID = (args.length < 1) ? "SESSION1" : args[0];
-        String pathExam = (args.length < 2) ? "./data/exam1.csv" : args[1];
-        String pathGrades = (args.length < 3) ? "./data/grades1.csv" : args[1];
+    public static void main(String[] args) throws IOException {
+        String pathInfoExam = (args.length < 1) ? "./data/exam.json" : args[1];
+        String pathExam = (args.length < 2) ? "./data/exam1.csv" : args[2];
+        String pathGrades = (args.length < 3) ? "./data/grades1.csv" : args[3];
+        ExamInfo exam = new ObjectMapper().readValue(new File(pathInfoExam), ExamInfo.class);
+        LocationAPI location = exam.getLocation();
+        String sessionID = location.getBindKey();
+        System.out.println(sessionID);
         try {
             Professor professor = new Professor(pathGrades);
-            Session session = new Session(professor, sessionID, professor.loadQuestions(pathExam));
-            bindingRegistry(sessionID, session);
+            List<QuestionAdapter> questions = professor.loadQuestions(pathExam);
+            POSTExamAPI postExamAPI = POSTExamAPI.fromExamInfo(
+                    exam,
+                    questions.stream().map(QuestionAdapter::toQuestionAPI)
+                            .collect(Collectors.toList()));
+            Optional<ExamAPI> examAPI = MyExams.postExam(postExamAPI);
+            if (examAPI.isEmpty()) {
+                System.out.println("Exam could not be uploaded");
+                System.exit(-1);
+            }
+            System.out.println("Exam id: " + examAPI.get().getId());
+            professor.setExamAPI(examAPI.get());
+            Session session = new Session(professor, sessionID, questions);
+            bindingRegistry(sessionID, session, location.getPort());
             System.out.println("In order to start the exam is needed to write 'start' in the terminal");
             System.out.println("In order to finish the exam is needed to write 'finish' in the terminal");
             sessionFlow(professor, session);
-        } catch (IOException | AlreadyBoundException e) {
+        } catch (IOException | AlreadyBoundException | InterruptedException e) {
             e.printStackTrace();
         }
         System.exit(0);
 
+    }
+
+    private void setExamAPI(ExamAPI examAPI) {
+        this.examAPI = examAPI;
     }
 
     private static class ScannerThread extends Thread {

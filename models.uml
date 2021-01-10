@@ -1,0 +1,56 @@
+@startuml
+skinparam roundcorner 20
+skinparam class {
+BackgroundColor Azure
+BorderColor DarkSlateGray
+ArrowColor DarkSlateGray
+}
+skinparam stereotypeCBackgroundColor GreenYellow
+
+class User {
+
+}
+
+class Professor extends User {
+
+}
+
+class Student extends User {
+    String ID
+    static check_id()
+}
+
+class Exam {
+    int id
+    String titol
+    String description?
+    Date date
+    Time time
+    Location location
+    create(): POST
+    update(): PUT
+    delete(): DELETE
+    get_by_id(): GET
+    get_by_desciption(): GET
+    download_by_id(): GET
+}
+
+Student "0..*" - "1..*" Exam
+(Student, Exam) .. Grade
+
+class Grade {
+    int value
+    upload(): POST
+    download(): GET
+}
+
+Exam "1" *-- "1..*" Question
+Exam "0..*" o-- "1..*" Student
+
+class Question {
+    String questionTitle
+    List<String> choices
+    int CorrectChoice
+}
+
+@enduml

@@ -7,7 +7,7 @@ public interface ExamController {
 
     public void startExam() throws UnsupportedSessionStateException, SessionException, IOException;
 
-    public void finishExam() throws IOException;
+    public void finishExam() throws IOException, InterruptedException;
 
     public boolean hasFinished();
 }
