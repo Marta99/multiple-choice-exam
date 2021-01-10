@@ -3,10 +3,8 @@ package common.api.data;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import server.data.ExamInfo;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class POSTExamAPI implements JsonSerializable {
     @JsonProperty("title")
@@ -27,23 +25,19 @@ public class POSTExamAPI implements JsonSerializable {
     public POSTExamAPI(@JsonProperty("title") String title, @JsonProperty("description") String description,
                        @JsonProperty("date_start") String dateStart, @JsonProperty("date_finish") String dateFinish,
                        @JsonProperty("location") LocationAPI location,
-                       @JsonProperty("questions") List<QuestionAPI> questions,
-                       @JsonProperty("students") List<StudentAPI> students) {
+                       @JsonProperty("questions") ArrayList<QuestionAPI> questions,
+                       @JsonProperty("students") ArrayList<StudentAPI> students) {
         this.title = title;
         this.description = description;
         this.dateStart = dateStart;
         this.dateFinish = dateFinish;
         this.location = location;
-        this.questions = new ArrayList<>(questions);
-        this.students = new ArrayList<>(students);
+        this.questions = questions;
+        this.students = students;
     }
 
     @Override
     public String toJson() throws JsonProcessingException {
         return new ObjectMapper().writeValueAsString(this);
-    }
-
-    public static POSTExamAPI fromExamInfo(ExamInfo exam, List<QuestionAPI> questions) {
-        return new POSTExamAPI(exam.getTitle(), exam.getDescription(), exam.getDateStart(), exam.getDateFinish(), exam.getLocation(), questions, exam.getStudents());
     }
 }

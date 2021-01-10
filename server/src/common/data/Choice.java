@@ -1,5 +1,7 @@
 package common.data;
 
+import common.api.data.ChoiceAPI;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -36,5 +38,9 @@ public class Choice implements Serializable {
                 "id=" + id +
                 ", question='" + answer + '\'' +
                 '}';
+    }
+
+    public ChoiceAPI toChoiceAPI() {
+        return new ChoiceAPI(this.id, this.answer);
     }
 }

@@ -1,0 +1,16 @@
+{
+  "title": "My title",
+  "description": "My description",
+  "date_start": "2021-01-04T01:36:00Z",
+  "date_finish": "2021-01-05T11:40:00Z",
+  "location": {
+    "port": 1099,
+    "host": "localhost",
+    "bind_key": "bind"
+  },
+  "students": [
+    {
+      "studentID": "STUDENTID1"
+    }
+  ]
+}

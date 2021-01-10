@@ -1,24 +1,24 @@
-package common.api.data;
+package server.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import common.api.data.LocationAPI;
+import common.api.data.StudentAPI;
 
 import java.util.List;
 
-public class ExamAPI {
+public class ExamInfo {
     private final int id;
     private String title;
     private String description;
     private String dateStart;
     private String dateFinish;
     private LocationAPI location;
-    private List<QuestionAPI> questions;
     private List<StudentAPI> students;
 
-    public ExamAPI(@JsonProperty("id") int id,
+    public ExamInfo(@JsonProperty("id") int id,
                    @JsonProperty("title") String title, @JsonProperty("description") String description,
                    @JsonProperty("date_start") String dateStart, @JsonProperty("date_finish") String dateFinish,
                    @JsonProperty("location") LocationAPI location,
-                   @JsonProperty("questions") List<QuestionAPI> questions,
                    @JsonProperty("students") List<StudentAPI> students) {
         this.id = id;
         this.title = title;
@@ -26,7 +26,6 @@ public class ExamAPI {
         this.dateStart = dateStart;
         this.dateFinish = dateFinish;
         this.location = location;
-        this.questions = questions;
         this.students = students;
     }
 
@@ -39,7 +38,6 @@ public class ExamAPI {
                 ", dateStart='" + dateStart + '\'' +
                 ", dateFinish='" + dateFinish + '\'' +
                 ", location=" + location +
-                ", questions=" + questions +
                 ", students=" + students +
                 '}';
     }
@@ -68,12 +66,7 @@ public class ExamAPI {
         return location;
     }
 
-    public List<QuestionAPI> getQuestions() {
-        return questions;
-    }
-
     public List<StudentAPI> getStudents() {
         return students;
     }
-
 }

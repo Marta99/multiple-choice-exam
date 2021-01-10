@@ -27,5 +27,6 @@
     <orderEntry type="library" name="org.mockito:mockito-all:2.0.2-beta" level="project" />
     <orderEntry type="library" name="org.apache.logging.log4j:log4j-1.2-api:2.14.0" level="project" />
     <orderEntry type="library" name="com.fasterxml.jackson.datatype:jackson-datatype-hibernate4:2.5.3" level="project" />
+    <orderEntry type="library" name="com.googlecode.json-simple:json-simple:1.1.1" level="project" />
   </component>
 </module>

@@ -1,11 +1,13 @@
 package server;
 
+import common.api.data.QuestionAPI;
 import common.data.Choice;
 import common.data.Question;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class QuestionAdapter {
 
@@ -43,5 +45,14 @@ public class QuestionAdapter {
     @Override
     public int hashCode() {
         return Objects.hash(correctAnswer, question);
+    }
+
+    public QuestionAPI toQuestionAPI() {
+        return new QuestionAPI(
+                question.getQuestionTitle(),
+                question.getChoices()
+                        .stream().map(Choice::toChoiceAPI)
+                        .collect(Collectors.toList()),
+                correctAnswer);
     }
 }
