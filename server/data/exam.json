@@ -1,8 +1,8 @@
 {
-  "title": "My title",
-  "description": "My description",
+  "title": "Distributed Computing U1",
+  "description": "Exam of the units 1 to 2 of the subject Distributed Computing.",
   "date_start": "2021-01-04T01:36:00Z",
-  "date_finish": "2021-01-05T11:40:00Z",
+  "date_finish": "2021-02-05T11:40:00Z",
   "location": {
     "port": 1099,
     "host": "localhost",
@@ -10,7 +10,19 @@
   },
   "students": [
     {
-      "studentID": "STUDENTID1"
+      "studentID": "78099079A"
+    },
+    {
+      "studentID": "12345632A"
+    },
+    {
+      "studentID": "78103041D"
+    },
+    {
+      "studentID": "78320584C"
+    },
+    {
+      "studentID": "48930SFD2"
     }
   ]
 }

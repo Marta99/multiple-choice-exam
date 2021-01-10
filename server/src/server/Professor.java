@@ -69,7 +69,7 @@ public class Professor {
             MyExams.storeGrades(
                     this.examAPI.getId(),
                     entry.getKey(),
-                    new GradeAPI(entry.getValue().getGrade(), new StudentAPI(entry.getKey())));
+                    new GradeAPI(entry.getValue().getGrade(), new StudentAPI(entry.getKey()), this.examAPI.getId()));
         }
         writer.close();
     }

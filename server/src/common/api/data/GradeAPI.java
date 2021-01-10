@@ -5,12 +5,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class GradeAPI implements JsonSerializable{
+    private int examID;
     private StudentAPI student;
     @JsonProperty("correct") private int correct;
 
-    public GradeAPI(@JsonProperty("correct") int correct, @JsonProperty("student") StudentAPI student) {
+    public GradeAPI(@JsonProperty("correct") int correct, @JsonProperty("student") StudentAPI student, @JsonProperty("exam_id") int examID) {
         this.correct = correct;
         this.student = student;
+        this.examID = examID;
     }
 
     @Override
