@@ -14,8 +14,6 @@ public class MyExams {
 
     private static final HttpClient client = HttpClient.newHttpClient();
     private static final String url = "http://0.0.0.0:8000/";
-    private static final String getlistExamEndpoint = url + "api/exam/";
-    private static final String postExamEndpoint = url + "api/exam/";
 
     private static URI getAccessURI(int examID, String studentID) {
         return URI.create(url + "api/exam/" + examID + "/" + studentID + "/");

@@ -7,50 +7,47 @@ ArrowColor DarkSlateGray
 }
 skinparam stereotypeCBackgroundColor GreenYellow
 
-class User {
-
-}
-
-class Professor extends User {
-
-}
-
-class Student extends User {
+class Student {
     String ID
-    static check_id()
 }
 
 class Exam {
     int id
     String titol
-    String description?
-    Date date
-    Time time
-    Location location
-    create(): POST
-    update(): PUT
-    delete(): DELETE
-    get_by_id(): GET
-    get_by_desciption(): GET
-    download_by_id(): GET
+    ExamLocation location
+    DateTime dateStart
+    DateFinish dateFinish
 }
 
 Student "0..*" - "1..*" Exam
 (Student, Exam) .. Grade
 
 class Grade {
-    int value
-    upload(): POST
-    download(): GET
+    int correct
 }
+
+class ExamLocation {
+    int port
+    String host
+    String bindKey
+}
+
+Exam --> ExamLocation
 
 Exam "1" *-- "1..*" Question
 Exam "0..*" o-- "1..*" Student
 
 class Question {
     String questionTitle
-    List<String> choices
-    int CorrectChoice
+    List<Choice> choices
+    int CorrectChoiceID
+}
+
+Question "1" *-- "1..*" Choice
+
+class Choice {
+    int choice_id
+    String response
 }
 
 @enduml
